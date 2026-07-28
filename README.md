@@ -9,6 +9,15 @@ jobs, ~30 typed security-object resources (addresses, applications, services, SS
 profiles, etc.), IDP (IPS profiles/rules/signatures), device inventory, device/tenant license & certificate
 management, templates, and the `/api/v2` tenant-admin surface (sites, tunnels, users/roles, IPsec profiles).
 
+> **⚠️ Use with caution.** This is a best-effort implementation, generated at scale from the OpenAPI spec and
+> not exhaustively tested against a live tenant. It exposes destructive and infrastructure-affecting operations —
+> deleting policies/rules/objects, deploying and cleaning up firewall/NAT policies, rebooting or removing
+> devices, installing licenses and certificates, changing passwords, and more — directly against your real
+> Security Director Cloud environment, with no confirmation or dry-run step of its own. A malformed request, an
+> LLM-driven mistake, or an edge case in a spec-derived schema can misconfigure or break your environment. Review
+> what a tool call will do before approving it, test against a non-production tenant first if you have one, and
+> don't grant it credentials for an environment you can't afford to have altered.
+
 ## Setup
 
 ```bash
