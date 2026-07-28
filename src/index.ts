@@ -1,0 +1,141 @@
+#!/usr/bin/env node
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { loadConfig } from './config.js';
+import { SdCloudClient } from './client.js';
+
+import { registerDeviceConfigTools } from './tools/devices/device-config.js';
+import { registerDeviceGroupTools } from './tools/devices/device-groups.js';
+import { registerDeviceImageTools } from './tools/devices/device-images.js';
+import { registerDeviceInventoryTools } from './tools/devices/device-inventory.js';
+import { registerDeviceRmaTools } from './tools/devices/device-rma.js';
+import { registerLicenseCertificateTools } from './tools/devices/license-certificates.js';
+import { registerMnhaClusterTools } from './tools/devices/mnha-clusters.js';
+import { registerIpsProfileTools } from './tools/idp/ips-profiles.js';
+import { registerIpsContextTools } from './tools/idp/ips-reference-data.js';
+import { registerIpsServiceTools } from './tools/idp/ips-reference-data.js';
+import { registerIpsVulnerabilityTools } from './tools/idp/ips-reference-data.js';
+import { registerIpsSignatureTools } from './tools/idp/ips-signatures.js';
+import { registerIpsSignatureCategoryTools } from './tools/idp/ips-signatures.js';
+import { registerIpsAnomalyTestTools } from './tools/idp/ips-signatures.js';
+import { registerFirewallPolicyTools } from './tools/policies/firewall-policies.js';
+import { registerNatPolicyTools } from './tools/policies/nat-policies.js';
+import { registerPolicyJobTools } from './tools/policies/policy-jobs.js';
+import { registerAamwProfileTools } from './tools/security-objects/aamw-profiles.js';
+import { registerAddressTools } from './tools/security-objects/addresses.js';
+import { registerAntiSpamProfileTools } from './tools/security-objects/anti-spam-profiles.js';
+import { registerAntiVirusProfileTools } from './tools/security-objects/anti-virus-profiles.js';
+import { registerApplicationTools } from './tools/security-objects/applications.js';
+import { registerContentFilteringProfileTools } from './tools/security-objects/content-filtering-profiles.js';
+import { registerContentSecurityProfileTools } from './tools/security-objects/content-security.js';
+import { registerContentSecuritySettingsTools } from './tools/security-objects/content-security.js';
+import { registerEnhancedContentFilteringProfileTools } from './tools/security-objects/enhanced-content-filtering-profiles.js';
+import { registerFirewallGlobalProfileTools } from './tools/security-objects/firewall-global-settings.js';
+import { registerFirewallGlobalSettingsTools } from './tools/security-objects/firewall-global-settings.js';
+import { registerFirewallDeviceGlobalSettingsTools } from './tools/security-objects/firewall-global-settings.js';
+import { registerFlowBasedAntivirusProfileTools } from './tools/security-objects/flow-based-antivirus-profiles.js';
+import { registerIcapProfileTools } from './tools/security-objects/icap.js';
+import { registerIcapServerTools } from './tools/security-objects/icap.js';
+import { registerIdentityObjectTools } from './tools/security-objects/identity-objects.js';
+import { registerNatPoolTools } from './tools/security-objects/nat-pools.js';
+import { registerProxyServerTools } from './tools/security-objects/proxy-servers.js';
+import { registerProxyServerConfigTools } from './tools/security-objects/proxy-servers.js';
+import { registerRedirectProfileTools } from './tools/security-objects/redirect-profiles.js';
+import { registerRuleOptionTools } from './tools/security-objects/rule-options.js';
+import { registerSchedulerTools } from './tools/security-objects/schedulers.js';
+import { registerSecintelProfileTools } from './tools/security-objects/secintel-profiles.js';
+import { registerSecintelProfileGroupTools } from './tools/security-objects/secintel-profiles.js';
+import { registerServiceTools } from './tools/security-objects/services.js';
+import { registerSslInitiationTools } from './tools/security-objects/ssl-initiations.js';
+import { registerSslProxyProfileTools } from './tools/security-objects/ssl-proxy-profiles.js';
+import { registerSwpProfileTools } from './tools/security-objects/swp-profiles.js';
+import { registerUrlCategoryListTools } from './tools/security-objects/url-category-lists.js';
+import { registerUrlPatternTools } from './tools/security-objects/url-patterns.js';
+import { registerVariableZoneTools } from './tools/security-objects/variable-zones.js';
+import { registerWebFilteringProfileTools } from './tools/security-objects/web-filtering-profiles.js';
+import { registerSubscriptionTools } from './tools/subscriptions/subscriptions.js';
+import { registerTemplateTools } from './tools/templates/templates.js';
+import { registerExternalProbeTools } from './tools/tenant-admin/external-probe.js';
+import { registerIamTools } from './tools/tenant-admin/iam.js';
+import { registerIpsecProfileTools } from './tools/tenant-admin/ipsec-profiles.js';
+import { registerPacFileTools } from './tools/tenant-admin/pac-files.js';
+import { registerSiteTools } from './tools/tenant-admin/sites.js';
+import { registerTenantTools } from './tools/tenant-admin/tenant.js';
+import { registerTunnelTools } from './tools/tenant-admin/tunnels.js';
+
+const config = loadConfig();
+const client = new SdCloudClient(config);
+
+const server = new McpServer({
+  name: 'hpe-security-director-cloud-mcp',
+  version: '1.0.0',
+});
+
+registerDeviceConfigTools(server, client);
+registerDeviceGroupTools(server, client);
+registerDeviceImageTools(server, client);
+registerDeviceInventoryTools(server, client);
+registerDeviceRmaTools(server, client);
+registerLicenseCertificateTools(server, client);
+registerMnhaClusterTools(server, client);
+registerIpsProfileTools(server, client);
+registerIpsContextTools(server, client);
+registerIpsServiceTools(server, client);
+registerIpsVulnerabilityTools(server, client);
+registerIpsSignatureTools(server, client);
+registerIpsSignatureCategoryTools(server, client);
+registerIpsAnomalyTestTools(server, client);
+registerFirewallPolicyTools(server, client);
+registerNatPolicyTools(server, client);
+registerPolicyJobTools(server, client);
+registerAamwProfileTools(server, client);
+registerAddressTools(server, client);
+registerAntiSpamProfileTools(server, client);
+registerAntiVirusProfileTools(server, client);
+registerApplicationTools(server, client);
+registerContentFilteringProfileTools(server, client);
+registerContentSecurityProfileTools(server, client);
+registerContentSecuritySettingsTools(server, client);
+registerEnhancedContentFilteringProfileTools(server, client);
+registerFirewallGlobalProfileTools(server, client);
+registerFirewallGlobalSettingsTools(server, client);
+registerFirewallDeviceGlobalSettingsTools(server, client);
+registerFlowBasedAntivirusProfileTools(server, client);
+registerIcapProfileTools(server, client);
+registerIcapServerTools(server, client);
+registerIdentityObjectTools(server, client);
+registerNatPoolTools(server, client);
+registerProxyServerTools(server, client);
+registerProxyServerConfigTools(server, client);
+registerRedirectProfileTools(server, client);
+registerRuleOptionTools(server, client);
+registerSchedulerTools(server, client);
+registerSecintelProfileTools(server, client);
+registerSecintelProfileGroupTools(server, client);
+registerServiceTools(server, client);
+registerSslInitiationTools(server, client);
+registerSslProxyProfileTools(server, client);
+registerSwpProfileTools(server, client);
+registerUrlCategoryListTools(server, client);
+registerUrlPatternTools(server, client);
+registerVariableZoneTools(server, client);
+registerWebFilteringProfileTools(server, client);
+registerSubscriptionTools(server, client);
+registerTemplateTools(server, client);
+registerExternalProbeTools(server, client);
+registerIamTools(server, client);
+registerIpsecProfileTools(server, client);
+registerPacFileTools(server, client);
+registerSiteTools(server, client);
+registerTenantTools(server, client);
+registerTunnelTools(server, client);
+
+async function main() {
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+}
+
+main().catch((err) => {
+  console.error('Fatal error starting hpe-security-director-cloud-mcp server:', err);
+  process.exit(1);
+});

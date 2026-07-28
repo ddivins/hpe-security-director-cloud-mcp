@@ -1,0 +1,41 @@
+{
+  "name": "hpe-security-director-cloud-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for HPE Juniper Security Director Cloud APIs",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "hpe-security-director-cloud-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ddivins/hpe-security-director-cloud-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ddivins/hpe-security-director-cloud-mcp/issues"
+  },
+  "homepage": "https://github.com/ddivins/hpe-security-director-cloud-mcp#readme",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "generate:types": "openapi-typescript spec/openapi.json -o src/generated/schema.d.ts",
+    "start": "node dist/index.js",
+    "dev": "tsc -p tsconfig.json --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "openapi-typescript": "^7.5.2",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
