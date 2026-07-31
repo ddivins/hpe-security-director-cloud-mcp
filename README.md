@@ -28,6 +28,8 @@ npm run build
 
 ## Configuration
 
+### Single Org (Direct .env)
+
 Copy `.env.example` to `.env` (or set these in your MCP client's env config) and provide exactly one credential:
 
 | Variable | Description |
@@ -35,6 +37,52 @@ Copy `.env.example` to `.env` (or set these in your MCP client's env config) and
 | `SDCLOUD_BASE_URL` | API base URL. Defaults to `https://api.sdcloud.juniperclouds.net/`. |
 | `SDCLOUD_API_KEY` | API key, sent as the `x-api-key` header. |
 | `SDCLOUD_OAUTH_TOKEN` | OAuth token, sent as the `x-oauth2-token` header. Takes precedence if both are set. |
+
+### Multiple Orgs (Claude Desktop)
+
+To query across multiple Security Director Cloud organizations (e.g., Lab, Production, test tenants), register multiple MCP server instances in Claude Desktop's config file, each with its own API key.
+
+**Edit** `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "hpe-sd-cloud-lab": {
+      "command": "node",
+      "args": ["/path/to/hpe-security-director-cloud-mcp/dist/index.js"],
+      "env": {
+        "SDCLOUD_API_KEY": "your_lab_api_key_here"
+      }
+    },
+    "hpe-sd-cloud-prod": {
+      "command": "node",
+      "args": ["/path/to/hpe-security-director-cloud-mcp/dist/index.js"],
+      "env": {
+        "SDCLOUD_API_KEY": "your_prod_api_key_here"
+      }
+    },
+    "hpe-sd-cloud-test-1": {
+      "command": "node",
+      "args": ["/path/to/hpe-security-director-cloud-mcp/dist/index.js"],
+      "env": {
+        "SDCLOUD_API_KEY": "your_test1_api_key_here"
+      }
+    }
+  }
+}
+```
+
+Each server instance:
+- Has a unique `mcpServers` key (e.g., `hpe-sd-cloud-lab`, `hpe-sd-cloud-prod`) — this is how you identify it in Claude
+- Points to the same built server binary (`dist/index.js`)
+- Passes a different API key via the `env` section
+
+In Claude, tools will appear prefixed by org name:
+- `hpe-sd-cloud-lab::sdcloud_list_devices` — query Lab devices
+- `hpe-sd-cloud-prod::sdcloud_list_devices` — query Prod devices
+- `hpe-sd-cloud-test-1::sdcloud_list_devices` — query Test 1 devices
+
+You can now ask Claude to compare policies, licenses, or device state across orgs, or to bulk-deploy configurations to multiple tenants simultaneously.
 
 ## Running
 
