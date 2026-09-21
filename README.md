@@ -93,6 +93,43 @@ node dist/index.js
 
 Or point an MCP client at `node /path/to/hpe-security-director-cloud-mcp/dist/index.js` with the env vars above.
 
+## Audit Logging
+
+All tool calls are automatically logged to `./logs/audit-YYYY-MM-DD.jsonl` (daily rotation). Logs include:
+- **Tool called** and **org queried**
+- **Status** (success/error)
+- **Duration** and **response size**
+- **Hashed parameters** (HMAC-redacted to avoid logging cleartext resource IDs or credentials)
+- **Request ID** for tracing
+
+**Example audit log entry:**
+```json
+{
+  "timestamp": "2026-09-21T14:32:10.123Z",
+  "tool": "hpe-sd-cloud-lab__sdcloud_list_devices",
+  "org": "hpe-sd-cloud-lab",
+  "status": "success",
+  "parameters_hash": "a1b2c3d4e5f6g7h8",
+  "response_size_bytes": 4521,
+  "duration_ms": 342,
+  "request_id": "f7a8b9c0d1e2f3g4"
+}
+```
+
+**Configure logging** via env vars:
+
+| Variable | Default | Description |
+|---|---|---|
+| `SDCLOUD_LOG_DIR` | `./logs` | Directory for audit logs. Ensure it exists and is writable. |
+| `SDCLOUD_LOG_LEVEL` | `info` | Verbosity: `info` or `debug`. Debug logs to stderr on each call. |
+| `SDCLOUD_LOG_HMAC_KEY` | `default-insecure-key-...` | Secret key for hashing parameters. **Change this in production.** |
+
+**Security notes:**
+- Logs never contain cleartext credentials or resource UUIDs — only HMAC hashes.
+- Logs are appended to JSONL files; implement external rotation or archive as needed.
+- The HMAC key should be a strong random secret in production environments. Regenerate keys if you suspect compromise.
+- For compliance, store audit logs in a tamper-evident location separate from the server.
+
 ## Architecture
 
 - `src/client.ts` — shared HTTP client (`request` for JSON, `requestMultipart` for the 5 file-upload endpoints).
