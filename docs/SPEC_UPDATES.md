@@ -83,15 +83,40 @@ Run anytime to check for updates:
 3. **Regenerates** TypeScript types (`npm run generate:types`)
 4. **Rebuilds** the project (`npm run build`)
 5. **Commits** the changes with a descriptive message
-6. **Logs** output to the configured log file
+6. **Sends a macOS notification** with status (if running on macOS)
+7. **Logs** output to the configured log file
 
 If the git working tree is dirty, the script will warn and skip auto-commit. You'll need to manually review changes.
 
+## Notifications
+
+When the script runs via launchd or cron:
+
+- **✅ No changes:** No notification (spec is current)
+- **✅ Changes found:** macOS notification appears: `"✅ OpenAPI spec updated! New types generated."`
+- **❌ Error:** macOS notification appears: `"❌ Failed to download spec"`
+
+Notifications appear in macOS Notification Center (top-right corner).
+
 ## Monitoring
 
-Check the log for any issues:
+Check the log for detailed activity:
 ```bash
 tail -f ~/Library/Logs/hpe-sd-cloud-spec-check.log
+```
+
+You'll see entries like:
+```
+[2026-09-21 06:00:00] Checking for OpenAPI spec updates...
+[2026-09-21 06:00:02] OK: Spec is current (MD5: 339294774b8db9a7ff811e18f24bf908)
+```
+
+Or if updates are found:
+```
+[2026-09-21 06:00:00] Checking for OpenAPI spec updates...
+[2026-09-21 06:00:02] UPDATE: Spec has changed! (was: abc123..., now: def456...)
+[2026-09-21 06:00:03] UPDATE: Regenerating types and rebuilding...
+[2026-09-21 06:00:08] SUCCESS: Spec updated and types regenerated. Review the diff before deploying.
 ```
 
 If updates are found, you'll see:

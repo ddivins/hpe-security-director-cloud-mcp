@@ -15,11 +15,26 @@ cleanup() {
 }
 trap cleanup EXIT
 
-echo "[$(date +'%Y-%m-%d %H:%M:%S')] Checking for OpenAPI spec updates..."
+# Send macOS notification
+notify() {
+  local title="$1"
+  local message="$2"
+
+  if [ "$(uname)" = "Darwin" ]; then
+    osascript -e "display notification \"$message\" with title \"$title\"" 2>/dev/null || true
+  fi
+}
+
+log_msg() {
+  echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1"
+}
+
+log_msg "Checking for OpenAPI spec updates..."
 
 # Download live spec
 if ! curl -sf "$SPEC_URL" -o "$TEMP_SPEC"; then
-  echo "[ERROR] Failed to download spec from $SPEC_URL"
+  log_msg "ERROR: Failed to download spec from $SPEC_URL"
+  notify "HPE SD Cloud Spec Check" "❌ Failed to download spec"
   exit 1
 fi
 
@@ -28,22 +43,22 @@ LOCAL_MD5=$(md5 -q "$SPEC_FILE" 2>/dev/null || md5sum "$SPEC_FILE" | awk '{print
 LIVE_MD5=$(md5 -q "$TEMP_SPEC" 2>/dev/null || md5sum "$TEMP_SPEC" | awk '{print $1}')
 
 if [ "$LOCAL_MD5" = "$LIVE_MD5" ]; then
-  echo "[OK] Spec is current (MD5: $LOCAL_MD5)"
+  log_msg "OK: Spec is current (MD5: $LOCAL_MD5)"
   exit 0
 fi
 
-echo "[UPDATE] Spec has changed! (was: $LOCAL_MD5, now: $LIVE_MD5)"
-echo "[UPDATE] Regenerating types and rebuilding..."
+log_msg "UPDATE: Spec has changed! (was: $LOCAL_MD5, now: $LIVE_MD5)"
+log_msg "UPDATE: Regenerating types and rebuilding..."
 
 # Update vendored spec
 cp "$TEMP_SPEC" "$SPEC_FILE"
 
 # Regenerate types
 cd "$PROJECT_DIR"
-npm run generate:types
+npm run generate:types > /dev/null 2>&1
 
 # Rebuild
-npm run build
+npm run build > /dev/null 2>&1
 
 # Git commit if repo is clean enough
 if git diff-index --quiet HEAD --; then
@@ -54,9 +69,10 @@ Spec MD5 changed from $LOCAL_MD5 to $LIVE_MD5.
 Types regenerated via automated check script.
 
 Co-Authored-By: Automated Spec Check <noreply@localhost>
-" || echo "[WARN] Git commit failed (repo may be dirty)"
+" > /dev/null 2>&1 || log_msg "WARN: Git commit failed (repo may be dirty)"
 else
-  echo "[WARN] Git working tree is dirty, skipping auto-commit. Manual review recommended."
+  log_msg "WARN: Git working tree is dirty, skipping auto-commit. Manual review recommended."
 fi
 
-echo "[SUCCESS] Spec updated and types regenerated. Review the diff before deploying."
+log_msg "SUCCESS: Spec updated and types regenerated. Review the diff before deploying."
+notify "HPE SD Cloud Spec Check" "✅ OpenAPI spec updated! New types generated."
