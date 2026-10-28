@@ -5,7 +5,7 @@ set -euo pipefail
 # Run via cron/launchd or manually
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SPEC_URL="https://www.juniper.net/documentation/us/en/software/sd-cloud/api/static/exports/security-director-cloud-apis-openapi3json.json"
+SPEC_URL="https://networkingdocs.hpe.com/documentation/us/en/software/sd-cloud/api/static/exports/security-director-cloud-apis-openapi3json.json"
 SPEC_FILE="$PROJECT_DIR/spec/openapi.json"
 TEMP_SPEC=$(mktemp)
 

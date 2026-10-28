@@ -1643,6 +1643,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/device_operations/{device_id}/cluster_interface_status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * GetClusterInterfaceStatusInformation
+         * @description Gets cluster interfaces status information for given device
+         */
+        get: operations["GetClusterInterfaceStatusInformation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/devices/rma/reactivate/{reactivation_id}": {
         parameters: {
             query?: never;
@@ -1755,6 +1775,134 @@ export interface paths {
          * @description Get detailed status for a specific device, which is in RMA state, including validation failures and missing resources
          */
         get: operations["GetRMADeviceStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/l2_cluster_deployments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * CreateL2ClusterDeployment
+         * @description Creates a new L2 cluster deployment configuration from two standalone devices with the provided information.
+         */
+        post: operations["CreateL2ClusterDeployment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/l2_cluster_deployments/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * ValidateL2ClusterDeployment
+         * @description Validates a proposed L2 cluster configuration against the devices' active configuration and returns any conflicting interfaces together with the conflicting CLI statements.
+         */
+        post: operations["ValidateL2ClusterDeployment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/l2_cluster_deployments/{l2_cluster_deployment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * GetL2ClusterDeployment
+         * @description Retrieves details of a specific L2 cluster deployment configuration by ID.
+         */
+        get: operations["GetL2ClusterDeployment"];
+        /**
+         * UpdateL2ClusterDeployment
+         * @description Updates an existing L2 cluster deployment configuration.
+         */
+        put: operations["UpdateL2ClusterDeployment"];
+        post?: never;
+        /**
+         * DeleteL2ClusterDeployment
+         * @description Deletes a L2 cluster deployment configuration by ID.
+         */
+        delete: operations["DeleteL2ClusterDeployment"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/l2_cluster_deployments/{l2_cluster_deployment_id}/deploy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * CommitL2ClusterDeployment
+         * @description Deploys a L2 cluster deployment configuration to the devices. This triggers the actual cluster setup job.
+         */
+        post: operations["CommitL2ClusterDeployment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/l2_cluster_deployments/{l2_cluster_deployment_id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * GetL2ClusterDeploymentStatus
+         * @description Retrieves the status of a L2 cluster deployment including current state, error messages if any, and cluster ID.
+         */
+        get: operations["GetL2ClusterDeploymentStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/l2_cluster_model_config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * GetL2ClusterModelConfig
+         * @description Returns the per-model L2 chassis-cluster settings (management interface, offsets, control/fabric ports, limits) and supported/blocked platform lists sourced from the ConfigMap.
+         */
+        get: operations["GetL2ClusterModelConfig"];
         put?: never;
         post?: never;
         delete?: never;
@@ -8442,11 +8590,29 @@ export interface components {
          * DeviceConfigZone
          * @description A configuration zone on a device.
          * @example {
-         *       "name": "string"
+         *       "name": "string",
+         *       "interfaces": [
+         *         {
+         *           "name": "string"
+         *         }
+         *       ]
          *     }
          */
         DeviceConfigZone: {
             /** @description Name of the configuration zone. */
+            name?: string;
+            /** @description Interfaces bound to this zone. */
+            interfaces?: components["schemas"]["DeviceConfigZoneInterface"][];
+        };
+        /**
+         * DeviceConfigZoneInterface
+         * @description An interface associated with a configuration zone.
+         * @example {
+         *       "name": "string"
+         *     }
+         */
+        DeviceConfigZoneInterface: {
+            /** @description Name of the interface. */
             name?: string;
         };
         /**
@@ -8835,7 +9001,12 @@ export interface components {
          * @example {
          *       "items": [
          *         {
-         *           "name": "string"
+         *           "name": "string",
+         *           "interfaces": [
+         *             {
+         *               "name": "string"
+         *             }
+         *           ]
          *         }
          *       ],
          *       "count": 1
@@ -9660,12 +9831,12 @@ export interface components {
         /**
          * WorkflowDefinitionUploadRequest
          * @description For multipart/form-data uploads, use form field 'definition_file' for the YAML file
-         * @example {
-         *       "definition_file": "string"
-         *     }
          */
         WorkflowDefinitionUploadRequest: {
-            /** @description YAML file containing workflow definition. For REST API: upload as multipart/form-data in 'definition_file' form field. Please refer to the documentation for details on how to write the YAML file and its fields. */
+            /**
+             * Format: byte
+             * @description YAML file containing workflow definition. For REST API: upload as multipart/form-data in 'definition_file' form field. Please refer to the documentation for details on how to write the YAML file and its fields.
+             */
             definition_file?: string;
         };
         /**
@@ -10067,16 +10238,14 @@ export interface components {
         /**
          * IngCACertificateUpload
          * @description CACertificateUpload describes a single CA certificate to upload or ignore.
-         * @example {
-         *       "id": "string",
-         *       "certificate_contents": "string",
-         *       "ignore": true
-         *     }
          */
         IngCACertificateUpload: {
             /** @description CA profile name as reported by the device. Obtain this value from the missing_ca_certificate list in GetRMADeviceStatusV1 and pass it back unchanged so the system can match the uploaded certificate to the correct CA profile. */
             id?: string;
-            /** @description PEM-encoded CA certificate file contents. */
+            /**
+             * Format: byte
+             * @description PEM-encoded CA certificate file contents.
+             */
             certificate_contents?: string;
             /** @description If true, mark this certificate as ignored instead of uploading it to the device. */
             ignore?: boolean;
@@ -10092,6 +10261,77 @@ export interface components {
          * @enum {string}
          */
         IngClusterType: "STANDALONE" | "L2_CLUSTER" | "MNHA";
+        /**
+         * CreateMnhaClusterRequest
+         * @description Request body for creating a new MNHA cluster. deployment_type is immutable after creation.
+         */
+        CreateMnhaClusterRequest: {
+            /** @description Required. MNHA deployment type. Allowed values: hybrid, routing, switching. Immutable after creation. */
+            deployment_type: string;
+            /**
+             * Format: int32
+             * @description BFD liveness minimum interval in milliseconds. Valid range: 100–255000. Default: 400 ms (1000 ms for vSRX/SRX4xx devices).
+             */
+            liveness_min_interval?: number;
+            /**
+             * Format: int32
+             * @description BFD liveness multiplier. Valid range: 1–10. Default: 3.
+             */
+            liveness_multiplier?: number;
+            /** @description Required. Per-device MNHA configurations. Exactly 2 devices required. */
+            devices: components["schemas"]["MnhaDeviceConfig"][];
+            /** @description WAN security zones, shared across both devices. Each entry carries the zone name and an optional logical_system_name. Required for switching; optional for hybrid and routing. LAN and WAN zones must not overlap. */
+            north_wan_zones?: components["schemas"]["MnhaZoneIfaceGroup"][];
+            /** @description LAN security zones, shared across both devices. Each entry carries the zone name and an optional logical_system_name. Required for switching and hybrid; optional for routing. LAN and WAN zones must not overlap. */
+            south_lan_zones?: components["schemas"]["MnhaZoneIfaceGroup"][];
+            /** @description Named prefix lists, shared across both devices. Not supported in switching mode. A WAN protocol requires at least one WAN prefix list; a LAN protocol requires at least one LAN prefix list. */
+            prefix_list?: components["schemas"]["MnhaPrefixList"][];
+            /** @description Routing instance in which the HA link (ICL and ICD) interfaces are configured, shared across both devices. Optional. */
+            halink_routing_instance?: string;
+            /**
+             * Format: int32
+             * @description Grid identifier shared across all devices. Valid range: 1–15. Omit or set to 0 when not used.
+             */
+            grid_id?: number;
+            vpn_profile?: components["schemas"]["CreateMnhaClusterRequestVpnProfile"];
+            interconnect?: components["schemas"]["CreateMnhaClusterRequestInterconnect"];
+        };
+        /**
+         * CreateMnhaClusterResponse
+         * @description Response from CreateMnhaCluster containing the cluster identifier.
+         * @example {
+         *       "mnha_cluster_id": "string"
+         *     }
+         */
+        CreateMnhaClusterResponse: {
+            /** @description Unique identifier (UUID) of the newly created MNHA cluster. */
+            readonly mnha_cluster_id?: string;
+        };
+        /** IngCreateMnhaClusterWrapperRequest */
+        IngCreateMnhaClusterWrapperRequest: {
+            /** @description Cluster-level fields shared across both devices. */
+            north_wan_interfaces?: components["schemas"]["MnhaZoneIfaceGroup"][];
+            south_lan_interfaces?: components["schemas"]["MnhaZoneIfaceGroup"][];
+            prefix_list?: components["schemas"]["MnhaPrefixList"][];
+            halink_routing_instance?: string;
+            deployment_type?: string;
+            /** Format: int32 */
+            liveness_min_interval?: number;
+            /** Format: int32 */
+            liveness_multiplier?: number;
+            devices?: components["schemas"]["MnhaDeviceConfig"][];
+            /** Format: int32 */
+            grid_id?: number;
+            vpn_profile?: components["schemas"]["IngCreateMnhaClusterWrapperRequestVpnProfile"];
+            /** @description Cluster-wide MNHA configuration mode (basic | advanced). Not part of the core contract. */
+            mode?: string;
+            /**
+             * @description WAN selected interface (UI construct), the same for both devices. Not part of the core
+             *     contract; persisted after the core cluster is created.
+             */
+            wan_selected_interface?: string;
+            interconnect?: components["schemas"]["IngCreateMnhaClusterWrapperRequestInterconnect"];
+        };
         /**
          * DefaultCACertificateConfig
          * @description Configuration for default CA certificate generation on the device.
@@ -10121,6 +10361,106 @@ export interface components {
             status?: components["schemas"]["apiStatus"];
             /** @description Status message. Contains error details on failure. */
             message?: string;
+        };
+        /**
+         * GetMnhaClusterResponse
+         * @description Full MNHA cluster configuration. The response mirrors the Create/Update request structure.
+         */
+        GetMnhaClusterResponse: {
+            /** @description Unique identifier (UUID) of the MNHA cluster. */
+            readonly mnha_cluster_id?: string;
+            /** @description MNHA deployment type. Allowed values: hybrid, routing, switching. */
+            deployment_type?: string;
+            /**
+             * Format: int32
+             * @description BFD liveness minimum interval in milliseconds.
+             */
+            liveness_min_interval?: number;
+            /**
+             * Format: int32
+             * @description BFD liveness multiplier.
+             */
+            liveness_multiplier?: number;
+            /** @description Per-device MNHA configurations. */
+            devices?: components["schemas"]["MnhaDeviceConfig"][];
+            /** @description WAN security zones, shared across both devices. Each entry carries the zone name and an optional logical_system_name. */
+            north_wan_zones?: components["schemas"]["MnhaZoneIfaceGroup"][];
+            /** @description LAN security zones, shared across both devices. Each entry carries the zone name and an optional logical_system_name. */
+            south_lan_zones?: components["schemas"]["MnhaZoneIfaceGroup"][];
+            /** @description Named prefix lists, shared across both devices. */
+            prefix_list?: components["schemas"]["MnhaPrefixList"][];
+            /** @description Routing instance in which the HA link (ICL and ICD) interfaces are configured, shared across both devices. */
+            halink_routing_instance?: string;
+            /**
+             * Format: int32
+             * @description Grid identifier shared across all devices. 0 indicates not set.
+             */
+            grid_id?: number;
+            vpn_profile?: components["schemas"]["GetMnhaClusterResponseVpnProfile"];
+            interconnect?: components["schemas"]["GetMnhaClusterResponseInterconnect"];
+        };
+        /**
+         * GetMnhaClusterStateResponse
+         * @description Current lifecycle state of an MNHA cluster with a human-readable description.
+         * @example {
+         *       "status": "string",
+         *       "display_message": "string",
+         *       "current_task": "string"
+         *     }
+         */
+        GetMnhaClusterStateResponse: {
+            /** @description Machine-readable lifecycle status of the MNHA cluster. */
+            readonly status: string;
+            /** @description Human-readable description of the current cluster status. */
+            readonly display_message: string;
+            /** @description Name of the task currently running. Only populated when a deployment or deletion job is in progress. */
+            readonly current_task?: string;
+        };
+        /**
+         * IngGetMnhaClusterWrapperResponse
+         * @description GetMnhaClusterWrapperResponse mirrors GetMnhaClusterResponse plus the wrapper-only mode and
+         *     wan_selected_interface, so the UI can fetch a cluster and round-trip it through the
+         *     Create/Update wrapper endpoints. Reads the wrapper-only fields back from the stored config.
+         */
+        IngGetMnhaClusterWrapperResponse: {
+            mnha_cluster_id?: string;
+            /** @description Cluster-level fields shared across both devices. */
+            north_wan_interfaces?: components["schemas"]["MnhaZoneIfaceGroup"][];
+            south_lan_interfaces?: components["schemas"]["MnhaZoneIfaceGroup"][];
+            prefix_list?: components["schemas"]["MnhaPrefixList"][];
+            halink_routing_instance?: string;
+            deployment_type?: string;
+            /** Format: int32 */
+            liveness_min_interval?: number;
+            /** Format: int32 */
+            liveness_multiplier?: number;
+            devices?: components["schemas"]["MnhaDeviceConfig"][];
+            /** Format: int32 */
+            grid_id?: number;
+            vpn_profile?: components["schemas"]["IngGetMnhaClusterWrapperResponseVpnProfile"];
+            /** @description Cluster-wide MNHA configuration mode (basic | advanced). Not part of the core contract. */
+            mode?: string;
+            /** @description WAN selected interface (UI construct), the same for both devices. Not part of the core contract. */
+            wan_selected_interface?: string;
+            interconnect?: components["schemas"]["IngGetMnhaClusterWrapperResponseInterconnect"];
+        };
+        /**
+         * GetMnhaVersionFeaturesResponse
+         * @description MNHA version feature thresholds from the service configuration.
+         * @example {
+         *       "version_features": {
+         *         "example": "string"
+         *       },
+         *       "min_version": "string"
+         *     }
+         */
+        GetMnhaVersionFeaturesResponse: {
+            /** @description Map of feature name to minimum OS version specification. Version specs may use slash-separated per-train minimums and + suffix for 'from this version onward'. */
+            readonly version_features?: {
+                [key: string]: string;
+            };
+            /** @description Minimum Junos OS version required to create or edit any MNHA cluster. */
+            readonly min_version?: string;
         };
         /**
          * GetRMADeviceStatusResponse
@@ -10204,6 +10544,17 @@ export interface components {
             remove_device_status?: components["schemas"]["DeleteDeviceInfo"][];
         };
         /**
+         * ImportMnhaConfigResponse
+         * @description Response from ImportMnhaConfig containing the import job identifier.
+         * @example {
+         *       "job_id": "string"
+         *     }
+         */
+        ImportMnhaConfigResponse: {
+            /** @description Identifier of the import job. Use GetMnhaClusterState to poll progress. */
+            readonly job_id?: string;
+        };
+        /**
          * IngLicenseUpload
          * @description LicenseUpload describes a single license to upload or ignore.
          * @example {
@@ -10220,25 +10571,1128 @@ export interface components {
         /**
          * IngLocalCertificateUpload
          * @description LocalCertificateUpload describes a single local certificate (+key) to upload or ignore.
-         * @example {
-         *       "id": "string",
-         *       "certificate_contents": "string",
-         *       "key_contents": "string",
-         *       "passphrase": "string",
-         *       "ignore": true
-         *     }
          */
         IngLocalCertificateUpload: {
             /** @description Local certificate name as reported by the device. Obtain this value from the missing_certificates list in GetRMADeviceStatusV1 and pass it back unchanged so the system can match the uploaded certificate and key to the correct identity on the device. */
             id?: string;
-            /** @description PEM-encoded certificate file contents. */
+            /**
+             * Format: byte
+             * @description PEM-encoded certificate file contents.
+             */
             certificate_contents?: string;
-            /** @description PEM-encoded private key file contents. */
+            /**
+             * Format: byte
+             * @description PEM-encoded private key file contents.
+             */
             key_contents?: string;
             /** @description Optional passphrase protecting the private key. */
             passphrase?: string;
             /** @description If true, mark this certificate as ignored instead of uploading it to the device. */
             ignore?: boolean;
+        };
+        /**
+         * MnhaBGPConfig
+         * @description BGP protocol configuration for a dynamic routing interface.
+         * @example {
+         *       "bgp_type": "string",
+         *       "local_address": "string",
+         *       "local_as": "string",
+         *       "peer_as": "string",
+         *       "neighbors": [
+         *         "string"
+         *       ]
+         *     }
+         */
+        MnhaBGPConfig: {
+            /** @description BGP session type. Required. Allowed values: internal, external. */
+            bgp_type?: string;
+            /** @description Required. Local BGP address. Must be a plain IP (no prefix) already configured on the interface. */
+            local_address?: string;
+            /** @description Required. Local autonomous system number. Accepts a plain number (1-4294967294) or asdot notation high.low (e.g. 65535.65534). */
+            local_as?: string;
+            /** @description Peer autonomous system number. Required for external BGP; must not be set for internal BGP. Accepts a plain number (1-4294967294) or asdot notation high.low (e.g. 65535.65534). */
+            peer_as?: string;
+            /** @description Required. List of BGP neighbor IP addresses. At least one entry required. */
+            neighbors?: string[];
+        };
+        /**
+         * MnhaDeviceCliPreview
+         * @description CLI diff preview for a single device in an MNHA cluster
+         * @example {
+         *       "device_id": "string",
+         *       "cli_diff": "string",
+         *       "error_message": "string"
+         *     }
+         */
+        MnhaDeviceCliPreview: {
+            /** @description UUID of the device */
+            device_id?: string;
+            /** @description CLI commands representing the configuration diff */
+            cli_diff?: string;
+            /** @description Error message if preview generation failed for this device */
+            error_message?: string;
+        };
+        /**
+         * MnhaDeviceConfig
+         * @description MNHA configuration for a single device node within the cluster.
+         * @example {
+         *       "device_uuid": "string",
+         *       "icl": {
+         *         "interface": {
+         *           "name": "string",
+         *           "ip": "string"
+         *         },
+         *         "loopback_underlay_interfaces": [
+         *           "string"
+         *         ]
+         *       },
+         *       "services_redundancy_groups": [
+         *         {
+         *           "srg_no": 1,
+         *           "is_primary": true,
+         *           "preemption_enabled": true,
+         *           "threshold": 1,
+         *           "signal_route": {
+         *             "active": "string",
+         *             "backup": "string",
+         *             "routing_instance": "string"
+         *           },
+         *           "activeness_probe": {
+         *             "source_ip": "string",
+         *             "destination_ip": "string",
+         *             "routing_instance": "string"
+         *           },
+         *           "prefix_list": [
+         *             {
+         *               "names": [
+         *                 "string"
+         *               ],
+         *               "logical_system_name": "string"
+         *             }
+         *           ],
+         *           "virtual_ip": [
+         *             {
+         *               "interface": "string",
+         *               "ip": [
+         *                 "string"
+         *               ],
+         *               "use_virtual_mac": true
+         *             }
+         *           ],
+         *           "monitor": {
+         *             "interface": [
+         *               "string"
+         *             ],
+         *             "bfd_liveliness": [
+         *               {
+         *                 "destination_ip": "string",
+         *                 "source_ip": "string",
+         *                 "routing_instance": "string",
+         *                 "session_type": "string",
+         *                 "interface_name": "string"
+         *               }
+         *             ],
+         *             "ip": [
+         *               {
+         *                 "destination_ip": "string",
+         *                 "routing_instance": "string"
+         *               }
+         *             ]
+         *           },
+         *           "monitorobject": [
+         *             {
+         *               "name": "string",
+         *               "threshold": 1,
+         *               "interfaces": {
+         *                 "threshold": 1,
+         *                 "interfaces": [
+         *                   {}
+         *                 ]
+         *               },
+         *               "bfd_liveliness": {
+         *                 "threshold": 1,
+         *                 "destinations": [
+         *                   {}
+         *                 ]
+         *               },
+         *               "ip": {
+         *                 "threshold": 1,
+         *                 "destinations": [
+         *                   {}
+         *                 ]
+         *               }
+         *             }
+         *           ],
+         *           "dhcp_server": true,
+         *           "ospf_interfaces": [
+         *             "string"
+         *           ],
+         *           "bgp_neighbors": [
+         *             {
+         *               "interface": "string",
+         *               "neighbor": "string"
+         *             }
+         *           ]
+         *         }
+         *       ],
+         *       "icd": {
+         *         "interface": {
+         *           "name": "string",
+         *           "ip": "string"
+         *         },
+         *         "loopback_underlay_interfaces": [
+         *           "string"
+         *         ]
+         *       },
+         *       "static_routes": [
+         *         {
+         *           "route": "string",
+         *           "routing_instance": "string",
+         *           "next_hop": [
+         *             "string"
+         *           ],
+         *           "logical_system_name": "string"
+         *         }
+         *       ],
+         *       "srg0": {
+         *         "signal_route_ip": "string",
+         *         "routing_instance": "string",
+         *         "threshold": 1,
+         *         "monitor": {
+         *           "interface": [
+         *             "string"
+         *           ],
+         *           "bfd_liveliness": [
+         *             {
+         *               "destination_ip": "string",
+         *               "source_ip": "string",
+         *               "routing_instance": "string",
+         *               "session_type": "string",
+         *               "interface_name": "string"
+         *             }
+         *           ],
+         *           "ip": [
+         *             {
+         *               "destination_ip": "string",
+         *               "routing_instance": "string"
+         *             }
+         *           ]
+         *         },
+         *         "monitorobject": [
+         *           {
+         *             "name": "string",
+         *             "threshold": 1,
+         *             "interfaces": {
+         *               "threshold": 1,
+         *               "interfaces": [
+         *                 {}
+         *               ]
+         *             },
+         *             "bfd_liveliness": {
+         *               "threshold": 1,
+         *               "destinations": [
+         *                 {}
+         *               ]
+         *             },
+         *             "ip": {
+         *               "threshold": 1,
+         *               "destinations": [
+         *                 {}
+         *               ]
+         *             }
+         *           }
+         *         ],
+         *         "prefix_list": [
+         *           {
+         *             "names": [
+         *               "string"
+         *             ],
+         *             "logical_system_name": "string"
+         *           }
+         *         ],
+         *         "ospf_interfaces": [
+         *           "string"
+         *         ],
+         *         "bgp_neighbors": [
+         *           {
+         *             "interface": "string",
+         *             "neighbor": "string"
+         *           }
+         *         ]
+         *       },
+         *       "protocols": [
+         *         {
+         *           "protocol": "string",
+         *           "bgp": {
+         *             "bgp_type": "string",
+         *             "local_address": "string",
+         *             "local_as": "string",
+         *             "peer_as": "string",
+         *             "neighbors": [
+         *               "string"
+         *             ]
+         *           },
+         *           "ospf": {
+         *             "area": "string"
+         *           },
+         *           "interface": "string",
+         *           "bfd_liveliness": true
+         *         }
+         *       ]
+         *     }
+         */
+        MnhaDeviceConfig: {
+            /** @description UUID of the device this MNHA configuration belongs to. */
+            device_uuid: string;
+            icl?: components["schemas"]["MnhaDeviceConfigIcl"];
+            /** @description List of services redundancy group configurations. */
+            services_redundancy_groups?: components["schemas"]["MnhaSRGConfig"][];
+            icd?: components["schemas"]["MnhaDeviceConfigIcd"];
+            /** @description Static route entries. routing_instance (if set) must be a virtual-router instance on the device. */
+            static_routes?: components["schemas"]["MnhaStaticRoute"][];
+            srg0?: components["schemas"]["MnhaDeviceConfigSrg0"];
+            /** @description Dynamic routing protocol entries for this device. Not supported in switching mode. Each entry specifies a protocol (bgp, ospf, ospf3) and the interface it is configured on. The interface must be a configured WAN, LAN, ICL, or ICD interface on the device. An interface may carry several BGP groups (one entry each) as long as their neighbor IP addresses differ; the same neighbor IP may only be reused on an interface in a different routing instance. bgp cannot be combined with ospf or ospf3 on the same interface. */
+            protocols?: components["schemas"]["MnhaProtocol"][];
+        };
+        /**
+         * MnhaIKESettings
+         * @description IKE settings for a VPN profile.
+         */
+        MnhaIKESettings: {
+            /** @description Diffie-Hellman group. Allowed values: group14, group15, group16, group19, group20, group21, group24. Defaults to group19 if not provided. */
+            dh_group?: string;
+            /** @description Authentication algorithm for IKE. Allowed values: sha-256, sha-384, sha-512. Default: sha-256. Must not be set when using a GCM encryption algorithm (AEAD — authentication is built in). */
+            authentication_algorithm?: string;
+            /** @description Encryption algorithm for IKE. Allowed values: aes-128-cbc, aes-128-gcm, aes-192-cbc, aes-192-gcm, aes-256-cbc, aes-256-gcm. Default: aes-256-gcm. */
+            encryption_algorithm?: string;
+            /**
+             * Format: int32
+             * @description IKE SA lifetime in seconds. Valid range: 180–86400. Omit to use the device default.
+             */
+            lifetime_seconds?: number;
+        };
+        /**
+         * MnhaIPSecSettings
+         * @description IPsec settings for a VPN profile.
+         */
+        MnhaIPSecSettings: {
+            /** @description Encryption algorithm for IPsec. Allowed values: aes-256-gcm. Default: aes-256-gcm. */
+            encryption_algorithm?: string;
+            /**
+             * Format: int32
+             * @description IPsec SA lifetime in seconds. Valid range: 180–86400. Omit to use the device default.
+             */
+            lifetime_seconds?: number;
+        };
+        /**
+         * MnhaIcdConfig
+         * @description ICD (inter-chassis datapath link) configuration. interface.name and interface.ip are required.
+         * @example {
+         *       "interface": {
+         *         "name": "string",
+         *         "ip": "string"
+         *       },
+         *       "loopback_underlay_interfaces": [
+         *         "string"
+         *       ]
+         *     }
+         */
+        MnhaIcdConfig: {
+            interface: components["schemas"]["MnhaIcdConfigInterface"];
+            /** @description Logical underlay interface names associated with the ICD link when the interface is a loopback. Required (at least one) when interface.name starts with lo0; must be empty otherwise. */
+            loopback_underlay_interfaces?: string[];
+        };
+        /**
+         * MnhaIclConfig
+         * @description ICL (inter-chassis link) configuration. interface.name and interface.ip are required.
+         * @example {
+         *       "interface": {
+         *         "name": "string",
+         *         "ip": "string"
+         *       },
+         *       "loopback_underlay_interfaces": [
+         *         "string"
+         *       ]
+         *     }
+         */
+        MnhaIclConfig: {
+            interface: components["schemas"]["MnhaIclConfigInterface"];
+            /** @description Logical underlay interface names associated with the ICL link when the interface is a loopback. Required (at least one) when interface.name starts with lo0; must be empty otherwise. */
+            loopback_underlay_interfaces?: string[];
+        };
+        /**
+         * MnhaInterconnectSettings
+         * @description Cluster-shared logical-tunnel (lt) interconnect settings: the network (CIDR) and OSPF area.
+         * @example {
+         *       "network": "string",
+         *       "ospf_area": "string"
+         *     }
+         */
+        MnhaInterconnectSettings: {
+            /** @description Interconnect network/subnet in CIDR notation, shared across both devices (e.g. 10.0.0.0/24). */
+            network?: string;
+            /** @description OSPF area for the interconnect, shared across both devices. Accepts a plain integer (e.g. 0), a dotted-decimal IP (e.g. 0.0.0.0), or a hostname string. */
+            ospf_area?: string;
+        };
+        /**
+         * MnhaInterface
+         * @description Interface with a logical name and IP address in CIDR notation.
+         * @example {
+         *       "name": "string",
+         *       "ip": "string"
+         *     }
+         */
+        MnhaInterface: {
+            /** @description Logical interface name (e.g. ae0, xe-0/0/0). Required. */
+            name: string;
+            /** @description IPv4 or IPv6 interface address in CIDR notation, including the prefix length (e.g. 192.168.0.1/30 or 2001:db8::1/64). Required. A plain IP without a prefix length is not accepted. */
+            ip: string;
+        };
+        /**
+         * MnhaOSPFConfig
+         * @description OSPF/OSPF3 protocol configuration for a dynamic routing interface.
+         * @example {
+         *       "area": "string"
+         *     }
+         */
+        MnhaOSPFConfig: {
+            /** @description OSPF area identifier in IP address format (e.g. 0.0.0.0). */
+            area?: string;
+        };
+        /**
+         * MnhaPreSharedKey
+         * @description Pre-shared key configuration for VPN authentication.
+         * @example {
+         *       "type": "string",
+         *       "value": "string"
+         *     }
+         */
+        MnhaPreSharedKey: {
+            /** @description How the pre-shared key is provisioned. Allowed values: autogen, manual. Defaults to autogen if not provided. */
+            type?: string;
+            /** @description The pre-shared key value. Required when type is manual. */
+            value?: string;
+        };
+        /**
+         * MnhaPrefixList
+         * @description A named prefix list with one or more IP address prefixes.
+         * @example {
+         *       "name": "string",
+         *       "type": "string",
+         *       "prefixes": [
+         *         "string"
+         *       ],
+         *       "logical_system_name": "string"
+         *     }
+         */
+        MnhaPrefixList: {
+            /** @description Name of the prefix list. */
+            name: string;
+            /** @description Direction of this prefix list. Must be "LAN", "WAN", "ICL" or "ICD". */
+            type?: string;
+            /** @description List of IP prefixes in CIDR notation (e.g. 10.0.0.0/8 or 2001:db8::/32). A prefix length is required; a plain address is rejected. */
+            prefixes?: string[];
+            /** @description Name of the logical system (lsys) or tenant system (tsys) this prefix list is configured in on the device. Empty means the root system. */
+            logical_system_name?: string;
+        };
+        /**
+         * MnhaProtocol
+         * @description Dynamic routing protocol configuration for an interface. protocol must be 'bgp' or 'ospf'. routing_instance is required for both. zone is required when protocol is 'bgp'.
+         * @example {
+         *       "protocol": "string",
+         *       "bgp": {
+         *         "bgp_type": "string",
+         *         "local_address": "string",
+         *         "local_as": "string",
+         *         "peer_as": "string",
+         *         "neighbors": [
+         *           "string"
+         *         ]
+         *       },
+         *       "ospf": {
+         *         "area": "string"
+         *       },
+         *       "interface": "string",
+         *       "bfd_liveliness": true
+         *     }
+         */
+        MnhaProtocol: {
+            /** @description Dynamic routing protocol type. Allowed values: bgp, ospf, ospf3. */
+            protocol: string;
+            bgp?: components["schemas"]["MnhaProtocolBgp"];
+            ospf?: components["schemas"]["MnhaProtocolOspf"];
+            /** @description Logical interface name on which this dynamic routing protocol is configured. The API derives the system context (root/lsys/tsys) from this interface. */
+            interface?: string;
+            /** @description Enables BFD liveness detection for this protocol entry. When true, the deploy pushes bfd-liveness-detection minimum-interval and multiplier on the BGP group (protocol bgp) or on the OSPF/OSPF3 area interface (protocol ospf/ospf3), using the cluster-wide liveness timers. Defaults to false. */
+            bfd_liveliness?: boolean;
+        };
+        /**
+         * MnhaSRG0Config
+         * @description Per-device configuration for the default services redundancy group (SRG 0). Applicable for routing deployment mode only.
+         * @example {
+         *       "signal_route_ip": "string",
+         *       "routing_instance": "string",
+         *       "threshold": 1,
+         *       "monitor": {
+         *         "interface": [
+         *           "string"
+         *         ],
+         *         "bfd_liveliness": [
+         *           {
+         *             "destination_ip": "string",
+         *             "source_ip": "string",
+         *             "routing_instance": "string",
+         *             "session_type": "string",
+         *             "interface_name": "string"
+         *           }
+         *         ],
+         *         "ip": [
+         *           {
+         *             "destination_ip": "string",
+         *             "routing_instance": "string"
+         *           }
+         *         ]
+         *       },
+         *       "monitorobject": [
+         *         {
+         *           "name": "string",
+         *           "threshold": 1,
+         *           "interfaces": {
+         *             "threshold": 1,
+         *             "interfaces": [
+         *               {
+         *                 "interface_name": "string",
+         *                 "weight": 1
+         *               }
+         *             ]
+         *           },
+         *           "bfd_liveliness": {
+         *             "threshold": 1,
+         *             "destinations": [
+         *               {
+         *                 "destination_ip": "string",
+         *                 "source_ip": "string",
+         *                 "routing_instance": "string",
+         *                 "session_type": "string",
+         *                 "interface_name": "string",
+         *                 "weight": 1
+         *               }
+         *             ]
+         *           },
+         *           "ip": {
+         *             "threshold": 1,
+         *             "destinations": [
+         *               {
+         *                 "destination_ip": "string",
+         *                 "routing_instance": "string",
+         *                 "weight": 1
+         *               }
+         *             ]
+         *           }
+         *         }
+         *       ],
+         *       "prefix_list": [
+         *         {
+         *           "names": [
+         *             "string"
+         *           ],
+         *           "logical_system_name": "string"
+         *         }
+         *       ],
+         *       "ospf_interfaces": [
+         *         "string"
+         *       ],
+         *       "bgp_neighbors": [
+         *         {
+         *           "interface": "string",
+         *           "neighbor": "string"
+         *         }
+         *       ]
+         *     }
+         */
+        MnhaSRG0Config: {
+            /** @description Signal route IP address for SRG 0. */
+            signal_route_ip?: string;
+            /** @description Routing instance for the SRG 0 signal route. */
+            routing_instance?: string;
+            /**
+             * Format: int32
+             * @description Threshold for SRG 0. Valid range: 1–1000. Only applicable when monitorobject entries are present.
+             */
+            threshold?: number;
+            monitor?: components["schemas"]["MnhaSRG0ConfigMonitor"];
+            /** @description Advanced monitoring objects (up to 10). Each requires a threshold and at least one of: interfaces, bfd_liveliness, ip. Mutually exclusive with monitor. */
+            monitorobject?: components["schemas"]["MnhaSRGMonitoringObject"][];
+            /** @description Context-aware SRG 0 prefix-list references (name + logical_system_name). Used to generate SRG 0 policy-statements and disambiguate same-named prefix lists across root/lsys/tsys. */
+            prefix_list?: components["schemas"]["MnhaSRGPrefixListRef"][];
+            /** @description Logical WAN/LAN interfaces (with a unit suffix, e.g. ge-0/0/2.0) bound to SRG 0 for OSPF, rendered as 'services-redundancy-group 0 interface <name> ospf'. Each interface must belong to a configured WAN or LAN zone on this device and may be bound to only one SRG. Requires Junos 25.4R2 / 25.4X300-D30 / 26.2R2 / 26.4R1+. */
+            ospf_interfaces?: string[];
+            /** @description BGP neighbours associated with SRG 0, each an interface + neighbour-address pair. SRG 0's policy statements are exported only to these neighbours, and only to the ones whose interface is on the side the statement advertises out of. An empty list keeps the legacy behaviour of exporting to every neighbour of the matching interfaces. */
+            bgp_neighbors?: components["schemas"]["MnhaSRGBgpNeighbor"][];
+        };
+        /**
+         * MnhaSRGActivenessProbe
+         * @description Activeness probe (source IP, destination IP, routing instance). Required for routing mode; not applicable for switching or hybrid.
+         * @example {
+         *       "source_ip": "string",
+         *       "destination_ip": "string",
+         *       "routing_instance": "string"
+         *     }
+         */
+        MnhaSRGActivenessProbe: {
+            /** @description Source IP address for the activeness probe. */
+            source_ip?: string;
+            /** @description Destination IP address for the activeness probe. */
+            destination_ip?: string;
+            /** @description Routing instance for the activeness probe. */
+            routing_instance?: string;
+        };
+        /**
+         * MnhaSRGBgpNeighbor
+         * @description A BGP neighbour associated with an SRG, identified by the interface its BGP group is configured under and the neighbour address.
+         * @example {
+         *       "interface": "string",
+         *       "neighbor": "string"
+         *     }
+         */
+        MnhaSRGBgpNeighbor: {
+            /** @description Logical interface (with a unit suffix, e.g. ge-0/0/1.0) whose BGP group carries this neighbour. Must match the interface of a configured BGP protocol entry on this device. */
+            interface: string;
+            /** @description BGP neighbour address. Must be one of the neighbours configured on the referenced interface's BGP protocol entry. */
+            neighbor: string;
+        };
+        /**
+         * MnhaSRGConfig
+         * @description Per-device configuration for a single services redundancy group.
+         * @example {
+         *       "srg_no": 1,
+         *       "is_primary": true,
+         *       "preemption_enabled": true,
+         *       "threshold": 1,
+         *       "signal_route": {
+         *         "active": "string",
+         *         "backup": "string",
+         *         "routing_instance": "string"
+         *       },
+         *       "activeness_probe": {
+         *         "source_ip": "string",
+         *         "destination_ip": "string",
+         *         "routing_instance": "string"
+         *       },
+         *       "prefix_list": [
+         *         {
+         *           "names": [
+         *             "string"
+         *           ],
+         *           "logical_system_name": "string"
+         *         }
+         *       ],
+         *       "virtual_ip": [
+         *         {
+         *           "interface": "string",
+         *           "ip": [
+         *             "string"
+         *           ],
+         *           "use_virtual_mac": true
+         *         }
+         *       ],
+         *       "monitor": {
+         *         "interface": [
+         *           "string"
+         *         ],
+         *         "bfd_liveliness": [
+         *           {
+         *             "destination_ip": "string",
+         *             "source_ip": "string",
+         *             "routing_instance": "string",
+         *             "session_type": "string",
+         *             "interface_name": "string"
+         *           }
+         *         ],
+         *         "ip": [
+         *           {
+         *             "destination_ip": "string",
+         *             "routing_instance": "string"
+         *           }
+         *         ]
+         *       },
+         *       "monitorobject": [
+         *         {
+         *           "name": "string",
+         *           "threshold": 1,
+         *           "interfaces": {
+         *             "threshold": 1,
+         *             "interfaces": [
+         *               {
+         *                 "interface_name": "string",
+         *                 "weight": 1
+         *               }
+         *             ]
+         *           },
+         *           "bfd_liveliness": {
+         *             "threshold": 1,
+         *             "destinations": [
+         *               {
+         *                 "destination_ip": "string",
+         *                 "source_ip": "string",
+         *                 "routing_instance": "string",
+         *                 "session_type": "string",
+         *                 "interface_name": "string",
+         *                 "weight": 1
+         *               }
+         *             ]
+         *           },
+         *           "ip": {
+         *             "threshold": 1,
+         *             "destinations": [
+         *               {
+         *                 "destination_ip": "string",
+         *                 "routing_instance": "string",
+         *                 "weight": 1
+         *               }
+         *             ]
+         *           }
+         *         }
+         *       ],
+         *       "dhcp_server": true,
+         *       "ospf_interfaces": [
+         *         "string"
+         *       ],
+         *       "bgp_neighbors": [
+         *         {
+         *           "interface": "string",
+         *           "neighbor": "string"
+         *         }
+         *       ]
+         *     }
+         */
+        MnhaSRGConfig: {
+            /**
+             * Format: int32
+             * @description SRG group number. Valid range: 1–20 (routing mode also allows 0 for the default SRG).
+             */
+            srg_no?: number;
+            /** @description True if this device is the primary (active) node for this SRG. */
+            is_primary?: boolean;
+            /** @description Enable preemption for this SRG. */
+            preemption_enabled?: boolean;
+            /**
+             * Format: int32
+             * @description Threshold for this SRG. Valid range: 1–1000. Only applicable when monitorobject entries are present.
+             */
+            threshold?: number;
+            signal_route?: components["schemas"]["MnhaSRGConfigSignalRoute"];
+            activeness_probe?: components["schemas"]["MnhaSRGConfigActivenessProbe"];
+            /** @description Context-aware SRG prefix-list references (name + logical_system_name). Use this to disambiguate same-named prefix lists across root/lsys/tsys. Not supported in switching mode. */
+            prefix_list?: components["schemas"]["MnhaSRGPrefixListRef"][];
+            /** @description Virtual IP entries for this SRG. Not supported in routing mode. Each entry's interface must be a LAN or WAN interface (hybrid and switching). Per SRG: hybrid requires at least one entry on a LAN interface (WAN entries are also allowed); switching requires at least one entry on a LAN interface AND at least one on a WAN interface. In switching and hybrid modes, IPs may be omitted for DHCP interfaces on qualifying Junos versions (25.4X300-D10 / 26.4R1+). IMPORTANT: the FIRST entry (index 0) must always reference an interface with a local IP address — it is used for liveness/activeness-probe calculation — on every Junos version; DHCP and address-less interfaces are only allowed on entries after the first. From Junos 25.4X300-D30 / 26.4R1+ (Interface NAT with VIP, nat_vip), an entry after the first may reference an interface with no local IP address at all (traffic is NAT'd through the virtual IP). */
+            virtual_ip?: components["schemas"]["MnhaSRGVirtualIP"][];
+            monitor?: components["schemas"]["MnhaSRGConfigMonitor"];
+            /** @description Advanced monitoring objects (up to 10). Each requires a threshold and at least one of: interfaces, bfd_liveliness, ip. Mutually exclusive with monitor. */
+            monitorobject?: components["schemas"]["MnhaSRGMonitoringObject"][];
+            /** @description Enable the DHCP server on this services redundancy group. */
+            dhcp_server?: boolean;
+            /** @description Logical WAN/LAN interfaces (with a unit suffix, e.g. ge-0/0/2.0) bound to this SRG for OSPF, rendered as 'services-redundancy-group <N> interface <name> ospf'. Each interface must belong to a configured WAN or LAN zone on this device and may be bound to only one SRG. Not supported in switching mode. Requires Junos 25.4R2 / 25.4X300-D30 / 26.2R2 / 26.4R1+. */
+            ospf_interfaces?: string[];
+            /** @description BGP neighbours associated with this SRG, each an interface + neighbour-address pair. This SRG's policy statements are exported only to these neighbours, and only to the ones whose interface is on the side the statement advertises out of (a WAN statement exports to WAN neighbours only). An empty list keeps the legacy behaviour of exporting to every neighbour of the matching interfaces. Not supported in switching mode. */
+            bgp_neighbors?: components["schemas"]["MnhaSRGBgpNeighbor"][];
+        };
+        /**
+         * MnhaSRGMonitor
+         * @description Monitoring configuration for an SRG with interface, BFD liveliness, and IP monitoring.
+         * @example {
+         *       "interface": [
+         *         "string"
+         *       ],
+         *       "bfd_liveliness": [
+         *         {
+         *           "destination_ip": "string",
+         *           "source_ip": "string",
+         *           "routing_instance": "string",
+         *           "session_type": "string",
+         *           "interface_name": "string"
+         *         }
+         *       ],
+         *       "ip": [
+         *         {
+         *           "destination_ip": "string",
+         *           "routing_instance": "string"
+         *         }
+         *       ]
+         *     }
+         */
+        MnhaSRGMonitor: {
+            /** @description Interface names to monitor. */
+            interface?: string[];
+            /** @description BFD liveliness monitoring configurations. */
+            bfd_liveliness?: components["schemas"]["MnhaSRGMonitorBFDLiveliness"][];
+            /** @description IP monitoring configurations. */
+            ip?: components["schemas"]["MnhaSRGMonitorIP"][];
+        };
+        /**
+         * MnhaSRGMonitorBFDLiveliness
+         * @description BFD liveliness monitoring entry. destination_ip and session_type are required.
+         * @example {
+         *       "destination_ip": "string",
+         *       "source_ip": "string",
+         *       "routing_instance": "string",
+         *       "session_type": "string",
+         *       "interface_name": "string"
+         *     }
+         */
+        MnhaSRGMonitorBFDLiveliness: {
+            /** @description BFD destination IP address. Required. */
+            destination_ip: string;
+            /** @description BFD source IP address. Required. */
+            source_ip?: string;
+            /** @description Routing instance for the BFD session. Must be a virtual-router instance if set. */
+            routing_instance?: string;
+            /** @description BFD session type. Required. Allowed values: multihop, singlehop. */
+            session_type: string;
+            /** @description Physical interface name (no unit suffix). Required for singlehop; must not be set for multihop. */
+            interface_name?: string;
+        };
+        /**
+         * MnhaSRGMonitorIP
+         * @description IP monitoring entry. destination_ip is required.
+         * @example {
+         *       "destination_ip": "string",
+         *       "routing_instance": "string"
+         *     }
+         */
+        MnhaSRGMonitorIP: {
+            /** @description Destination IP address to monitor. Required. */
+            destination_ip: string;
+            /** @description Routing instance for the IP monitoring probe. Must be a virtual-router instance if set. */
+            routing_instance?: string;
+        };
+        /**
+         * MnhaSRGMonitoringBFDDest
+         * @description A single BFD liveliness destination entry.
+         * @example {
+         *       "destination_ip": "string",
+         *       "source_ip": "string",
+         *       "routing_instance": "string",
+         *       "session_type": "string",
+         *       "interface_name": "string",
+         *       "weight": 1
+         *     }
+         */
+        MnhaSRGMonitoringBFDDest: {
+            /** @description BFD destination IP address. Required. */
+            destination_ip?: string;
+            /** @description BFD source IP address. Required. */
+            source_ip?: string;
+            /** @description Routing instance for the BFD session. Must be a virtual-router instance if set. */
+            routing_instance?: string;
+            /** @description BFD session type. Required. Allowed values: multihop, singlehop. */
+            session_type?: string;
+            /** @description Physical interface name (no unit suffix). Required for singlehop; must not be set for multihop. */
+            interface_name?: string;
+            /**
+             * Format: int32
+             * @description Weight assigned to this BFD destination. Valid range: 1–1000.
+             */
+            weight?: number;
+        };
+        /**
+         * MnhaSRGMonitoringBFDLiveliness
+         * @description BFD liveliness monitoring with a threshold and list of BFD destinations.
+         * @example {
+         *       "threshold": 1,
+         *       "destinations": [
+         *         {
+         *           "destination_ip": "string",
+         *           "source_ip": "string",
+         *           "routing_instance": "string",
+         *           "session_type": "string",
+         *           "interface_name": "string",
+         *           "weight": 1
+         *         }
+         *       ]
+         *     }
+         */
+        MnhaSRGMonitoringBFDLiveliness: {
+            /**
+             * Format: int32
+             * @description Threshold value for BFD liveliness monitoring.
+             */
+            threshold?: number;
+            /** @description List of BFD liveliness destination entries. */
+            destinations?: components["schemas"]["MnhaSRGMonitoringBFDDest"][];
+        };
+        /**
+         * MnhaSRGMonitoringIP
+         * @description IP monitoring with a threshold and list of IP destinations.
+         * @example {
+         *       "threshold": 1,
+         *       "destinations": [
+         *         {
+         *           "destination_ip": "string",
+         *           "routing_instance": "string",
+         *           "weight": 1
+         *         }
+         *       ]
+         *     }
+         */
+        MnhaSRGMonitoringIP: {
+            /**
+             * Format: int32
+             * @description Threshold value for IP monitoring.
+             */
+            threshold?: number;
+            /** @description List of IP monitoring destination entries. */
+            destinations?: components["schemas"]["MnhaSRGMonitoringIPDest"][];
+        };
+        /**
+         * MnhaSRGMonitoringIPDest
+         * @description A single IP monitoring destination entry.
+         * @example {
+         *       "destination_ip": "string",
+         *       "routing_instance": "string",
+         *       "weight": 1
+         *     }
+         */
+        MnhaSRGMonitoringIPDest: {
+            /** @description Destination IP address to monitor. Required. */
+            destination_ip?: string;
+            /** @description Routing instance for the IP monitoring probe. Must be a virtual-router instance if set. */
+            routing_instance?: string;
+            /**
+             * Format: int32
+             * @description Weight assigned to this destination. Valid range: 1–1000.
+             */
+            weight?: number;
+        };
+        /**
+         * MnhaSRGMonitoringInterfaceItem
+         * @description A single monitored interface with its weight.
+         * @example {
+         *       "interface_name": "string",
+         *       "weight": 1
+         *     }
+         */
+        MnhaSRGMonitoringInterfaceItem: {
+            /** @description Name of the monitored interface. */
+            interface_name?: string;
+            /**
+             * Format: int32
+             * @description Weight assigned to this interface for monitoring.
+             */
+            weight?: number;
+        };
+        /**
+         * MnhaSRGMonitoringInterfaces
+         * @description Interface monitoring with a threshold and list of monitored interfaces.
+         * @example {
+         *       "threshold": 1,
+         *       "interfaces": [
+         *         {
+         *           "interface_name": "string",
+         *           "weight": 1
+         *         }
+         *       ]
+         *     }
+         */
+        MnhaSRGMonitoringInterfaces: {
+            /**
+             * Format: int32
+             * @description Threshold value for interface monitoring.
+             */
+            threshold?: number;
+            /** @description List of monitored interfaces with their weights. */
+            interfaces?: components["schemas"]["MnhaSRGMonitoringInterfaceItem"][];
+        };
+        /**
+         * MnhaSRGMonitoringObject
+         * @description Monitoring object with optional name, threshold, and monitoring categories (interfaces, BFD liveliness, IP).
+         * @example {
+         *       "name": "string",
+         *       "threshold": 1,
+         *       "interfaces": {
+         *         "threshold": 1,
+         *         "interfaces": [
+         *           {
+         *             "interface_name": "string",
+         *             "weight": 1
+         *           }
+         *         ]
+         *       },
+         *       "bfd_liveliness": {
+         *         "threshold": 1,
+         *         "destinations": [
+         *           {
+         *             "destination_ip": "string",
+         *             "source_ip": "string",
+         *             "routing_instance": "string",
+         *             "session_type": "string",
+         *             "interface_name": "string",
+         *             "weight": 1
+         *           }
+         *         ]
+         *       },
+         *       "ip": {
+         *         "threshold": 1,
+         *         "destinations": [
+         *           {
+         *             "destination_ip": "string",
+         *             "routing_instance": "string",
+         *             "weight": 1
+         *           }
+         *         ]
+         *       }
+         *     }
+         */
+        MnhaSRGMonitoringObject: {
+            /** @description Monitoring object name. */
+            name?: string;
+            /**
+             * Format: int32
+             * @description Threshold value for this monitoring object.
+             */
+            threshold?: number;
+            interfaces?: components["schemas"]["MnhaSRGMonitoringObjectInterfaces"];
+            bfd_liveliness?: components["schemas"]["MnhaSRGMonitoringObjectBfdLiveliness"];
+            ip?: components["schemas"]["MnhaSRGMonitoringObjectIp"];
+        };
+        /**
+         * MnhaSRGPrefixListRef
+         * @description One or more top-level prefix_list names that share the same system context (root/lsys/tsys). Group all names for a given system into a single entry.
+         * @example {
+         *       "names": [
+         *         "string"
+         *       ],
+         *       "logical_system_name": "string"
+         *     }
+         */
+        MnhaSRGPrefixListRef: {
+            /** @description Prefix-list names matching top-level prefix_list entries in the same system context. */
+            names: string[];
+            /** @description Name of the logical system (lsys) or tenant system (tsys) all listed names belong to. Empty means the root system. */
+            logical_system_name?: string;
+        };
+        /**
+         * MnhaSRGSignalRoute
+         * @description Signal route (active + backup IPs). Required for routing and hybrid modes; not applicable for switching.
+         * @example {
+         *       "active": "string",
+         *       "backup": "string",
+         *       "routing_instance": "string"
+         *     }
+         */
+        MnhaSRGSignalRoute: {
+            /** @description Active signal route IP address. */
+            active: string;
+            /** @description Backup signal route IP address. */
+            backup: string;
+            /** @description Routing instance for the active and backup signal routes. */
+            routing_instance?: string;
+        };
+        /**
+         * MnhaSRGVirtualIP
+         * @description Virtual IP entry for an SRG: interface name, device IP, virtual IP in CIDR notation, and optional virtual MAC behaviour.
+         * @example {
+         *       "interface": "string",
+         *       "ip": [
+         *         "string"
+         *       ],
+         *       "use_virtual_mac": true
+         *     }
+         */
+        MnhaSRGVirtualIP: {
+            /** @description Interface name on which the virtual IP is configured. The interface referenced by the first entry (index 0) in the parent virtual_ip list must always have a local IP address, used for liveness/activeness-probe calculation — the DHCP / nat_vip no-local-IP exceptions apply only to later entries. */
+            interface?: string;
+            /** @description List of virtual IP addresses in CIDR notation. From SRX 26.2R1: up to 2 entries (one IPv4 + one IPv6). From SRX 26.4R1: multiple IPv4 and IPv6 addresses allowed in the same entry. */
+            ip?: string[];
+            /** @description When true, a virtual MAC address is used alongside the virtual IP. */
+            use_virtual_mac?: boolean;
+        };
+        /**
+         * MnhaStaticRoute
+         * @description Static route entry. route must be in CIDR notation (e.g. 10.0.0.0/24 or 2001:db8::/32).
+         * @example {
+         *       "route": "string",
+         *       "routing_instance": "string",
+         *       "next_hop": [
+         *         "string"
+         *       ],
+         *       "logical_system_name": "string"
+         *     }
+         */
+        MnhaStaticRoute: {
+            /** @description Destination route in CIDR notation (IPv4 or IPv6, e.g. 10.0.0.0/24 or 2001:db8::/32). Required. */
+            route: string;
+            /** @description Routing instance in which this static route is installed. Optional. */
+            routing_instance?: string;
+            /** @description List of next-hop IP addresses or interface names for this static route. */
+            next_hop?: string[];
+            /** @description Name of the logical system (lsys) or tenant system (tsys) this static route is configured in on the device. Empty means the root system. */
+            logical_system_name?: string;
+        };
+        /**
+         * MnhaVPNAuthentication
+         * @description Authentication configuration for a VPN profile.
+         * @example {
+         *       "method": "string",
+         *       "pre_shared_key": {
+         *         "type": "string",
+         *         "value": "string"
+         *       },
+         *       "device_certificates": [
+         *         {
+         *           "device_uuid": "string",
+         *           "local_certificate": "string",
+         *           "trusted_certificate": "string"
+         *         }
+         *       ]
+         *     }
+         */
+        MnhaVPNAuthentication: {
+            /** @description Authentication method. Allowed values: pre-shared-keys, certificates. Defaults to pre-shared-keys if not provided. */
+            method?: string;
+            pre_shared_key?: components["schemas"]["MnhaVPNAuthenticationPreSharedKey"];
+            /** @description Per-device certificate references, keyed by device_uuid. Required when method is certificates — one entry per cluster device, each providing that device's local and trusted certificate names. */
+            device_certificates?: components["schemas"]["MnhaVPNDeviceCertificate"][];
+        };
+        /**
+         * MnhaVPNDeviceCertificate
+         * @description Per-device certificate references for certificate-based ICL VPN authentication.
+         * @example {
+         *       "device_uuid": "string",
+         *       "local_certificate": "string",
+         *       "trusted_certificate": "string"
+         *     }
+         */
+        MnhaVPNDeviceCertificate: {
+            /** @description UUID of the device these certificates belong to. Must match one of the cluster devices. */
+            device_uuid?: string;
+            /** @description Local certificate name installed on this device. */
+            local_certificate?: string;
+            /** @description Trusted CA certificate name installed on this device. */
+            trusted_certificate?: string;
+        };
+        /**
+         * MnhaVPNProfile
+         * @description VPN profile configuration for ICL link encryption. The name is set automatically by the server.
+         */
+        MnhaVPNProfile: {
+            ike_settings?: components["schemas"]["MnhaVPNProfileIkeSettings"];
+            ipsec_settings?: components["schemas"]["MnhaVPNProfileIpsecSettings"];
+            authentication?: components["schemas"]["MnhaVPNProfileAuthentication"];
+        };
+        /**
+         * MnhaZoneIfaceGroup
+         * @description A security zone with its associated protocols for WAN or LAN configuration. zone is required.
+         * @example {
+         *       "zone": "string",
+         *       "logical_system_name": "string"
+         *     }
+         */
+        MnhaZoneIfaceGroup: {
+            /** @description Security zone name. Required. */
+            zone: string;
+            /** @description Name of the logical system (lsys) or tenant system (tsys) this zone's interfaces are configured in on the device. Empty means the root system. */
+            logical_system_name?: string;
         };
         /**
          * IngOnboardingType
@@ -10250,6 +11704,23 @@ export interface components {
          * @enum {string}
          */
         IngOnboardingType: "BROWN_FIELD" | "ZTP";
+        /**
+         * PreviewMnhaClusterCliResponse
+         * @description CLI diff preview for both devices in an MNHA cluster
+         * @example {
+         *       "device_previews": [
+         *         {
+         *           "device_id": "string",
+         *           "cli_diff": "string",
+         *           "error_message": "string"
+         *         }
+         *       ]
+         *     }
+         */
+        PreviewMnhaClusterCliResponse: {
+            /** @description CLI diff preview per device in the cluster */
+            device_previews?: components["schemas"]["MnhaDeviceCliPreview"][];
+        };
         /**
          * PutDeviceInRMAResponse
          * @description Response after putting a single device into RMA state, containing request data and operation result.
@@ -10270,31 +11741,6 @@ export interface components {
         /**
          * ReactivateRMADeviceInput
          * @description Optional body for the reactivate endpoint. When certificate/license fields are provided, the system uploads and installs them on the device and then triggers reactivation. When empty, the system retries a previously failed reactivation or discovery job.
-         * @example {
-         *       "ca_certificates": [
-         *         {
-         *           "id": "string",
-         *           "certificate_contents": "string",
-         *           "ignore": true
-         *         }
-         *       ],
-         *       "local_certificates": [
-         *         {
-         *           "id": "string",
-         *           "certificate_contents": "string",
-         *           "key_contents": "string",
-         *           "passphrase": "string",
-         *           "ignore": true
-         *         }
-         *       ],
-         *       "license": {
-         *         "license_contents": "string",
-         *         "ignore": true
-         *       },
-         *       "default_ca": {
-         *         "ignore": true
-         *       }
-         *     }
          */
         ReactivateRMADeviceInput: {
             /** @description List of CA certificates to upload and install on the device, or mark as ignored. */
@@ -10314,6 +11760,43 @@ export interface components {
         ReactivateRMADeviceResponse: {
             /** @description Reactivation ID of the initiated job. Use GetReactivationStatusV1 with this ID to poll progress. */
             reactivation_id?: string;
+        };
+        /**
+         * IngSaveMnhaDraftRequest
+         * @description SaveMnhaDraftRequest is the request body for saving MNHA cluster configuration as a draft.
+         *     It has the same structure as CreateMnhaClusterRequest. If the devices are not yet part of
+         *     an MNHA cluster, the cluster is modelled (parent device, group, and per-device mnhaconfig
+         *     records are created). If they are already a cluster, that step is skipped. In both cases the
+         *     mnhastatus record is upserted with DRAFT status. No input validation is performed.
+         */
+        IngSaveMnhaDraftRequest: {
+            deployment_type?: string;
+            /** Format: int32 */
+            liveness_min_interval?: number;
+            /** Format: int32 */
+            liveness_multiplier?: number;
+            devices?: components["schemas"]["MnhaDeviceConfig"][];
+            north_wan_interfaces?: components["schemas"]["MnhaZoneIfaceGroup"][];
+            south_lan_interfaces?: components["schemas"]["MnhaZoneIfaceGroup"][];
+            prefix_list?: components["schemas"]["MnhaPrefixList"][];
+            halink_routing_instance?: string;
+            /** Format: int32 */
+            grid_id?: number;
+            vpn_profile?: components["schemas"]["IngSaveMnhaDraftRequestVpnProfile"];
+            mode?: string;
+            wan_selected_interface?: string;
+            interconnect?: components["schemas"]["IngSaveMnhaDraftRequestInterconnect"];
+        };
+        /**
+         * IngSaveMnhaDraftResponse
+         * @description SaveMnhaDraftResponse is returned on a successful SaveMnhaDraft call.
+         * @example {
+         *       "mnha_cluster_id": "string"
+         *     }
+         */
+        IngSaveMnhaDraftResponse: {
+            /** @description Unique identifier of the MNHA cluster (newly created or pre-existing). */
+            mnha_cluster_id?: string;
         };
         /**
          * SetupRMADeviceResponse
@@ -10345,6 +11828,917 @@ export interface components {
             status?: string;
             /** @description Detailed message explaining the step's status, providing additional context, error details, or success information. */
             status_message?: string;
+        };
+        /** IngUpdateMnhaClusterWrapperRequest */
+        IngUpdateMnhaClusterWrapperRequest: {
+            mnha_cluster_id?: string;
+            /** @description Cluster-level fields shared across both devices. */
+            north_wan_interfaces?: components["schemas"]["MnhaZoneIfaceGroup"][];
+            south_lan_interfaces?: components["schemas"]["MnhaZoneIfaceGroup"][];
+            prefix_list?: components["schemas"]["MnhaPrefixList"][];
+            halink_routing_instance?: string;
+            deployment_type?: string;
+            /** Format: int32 */
+            liveness_min_interval?: number;
+            /** Format: int32 */
+            liveness_multiplier?: number;
+            devices?: components["schemas"]["MnhaDeviceConfig"][];
+            /** Format: int32 */
+            grid_id?: number;
+            vpn_profile?: components["schemas"]["IngUpdateMnhaClusterWrapperRequestVpnProfile"];
+            /** @description Cluster-wide MNHA configuration mode (basic | advanced). Not part of the core contract. */
+            mode?: string;
+            /**
+             * @description WAN selected interface (UI construct), the same for both devices. Not part of the core
+             *     contract; persisted after the core cluster is updated.
+             */
+            wan_selected_interface?: string;
+            interconnect?: components["schemas"]["IngUpdateMnhaClusterWrapperRequestInterconnect"];
+        };
+        /**
+         * l2clusterClusterInterfaceStatusInformationResponse
+         * @example {
+         *       "fabric_link_details": {
+         *         "status": "string",
+         *         "interfaces": [
+         *           {
+         *             "interface_name": "string",
+         *             "physical_status": "string",
+         *             "monitored_status": "string"
+         *           }
+         *         ]
+         *       },
+         *       "control_link_details": {
+         *         "status": "string",
+         *         "interfaces": [
+         *           {
+         *             "interface_name": "string",
+         *             "status": "string"
+         *           }
+         *         ]
+         *       },
+         *       "cluster_status": {
+         *         "cluster_id": "string",
+         *         "redundancy_groups": [
+         *           {
+         *             "group_id": "string",
+         *             "failover_count": 1,
+         *             "nodes": [
+         *               {
+         *                 "node_name": "string",
+         *                 "priority": "string",
+         *                 "status": "string",
+         *                 "preempt": "string",
+         *                 "manual_failover": "string",
+         *                 "monitor_failures": "string"
+         *               }
+         *             ]
+         *           }
+         *         ]
+         *       }
+         *     }
+         */
+        l2clusterClusterInterfaceStatusInformationResponse: {
+            fabric_link_details?: components["schemas"]["l2clusterFabricLinkInformation"] & unknown;
+            control_link_details?: components["schemas"]["l2clusterControlLinkInformation"] & unknown;
+            cluster_status?: components["schemas"]["l2clusterClusterStatusInformation"] & unknown;
+        };
+        /**
+         * l2clusterClusterNodeStatus
+         * @example {
+         *       "node_name": "string",
+         *       "priority": "string",
+         *       "status": "string",
+         *       "preempt": "string",
+         *       "manual_failover": "string",
+         *       "monitor_failures": "string"
+         *     }
+         */
+        l2clusterClusterNodeStatus: {
+            node_name?: string;
+            priority?: string;
+            status?: string;
+            preempt?: string;
+            manual_failover?: string;
+            monitor_failures?: string;
+        };
+        /**
+         * l2clusterClusterStatusInformation
+         * @example {
+         *       "cluster_id": "string",
+         *       "redundancy_groups": [
+         *         {
+         *           "group_id": "string",
+         *           "failover_count": 1,
+         *           "nodes": [
+         *             {
+         *               "node_name": "string",
+         *               "priority": "string",
+         *               "status": "string",
+         *               "preempt": "string",
+         *               "manual_failover": "string",
+         *               "monitor_failures": "string"
+         *             }
+         *           ]
+         *         }
+         *       ]
+         *     }
+         */
+        l2clusterClusterStatusInformation: {
+            cluster_id?: string;
+            redundancy_groups?: components["schemas"]["l2clusterRedundancyGroupStatus"][];
+        };
+        /**
+         * CommitL2ClusterDeploymentResponse
+         * @example {
+         *       "operation_id": "string",
+         *       "l2_cluster_deployment_id": "string"
+         *     }
+         */
+        CommitL2ClusterDeploymentResponse: {
+            operation_id?: string;
+            l2_cluster_deployment_id?: string;
+        };
+        /**
+         * l2clusterControlInterfaceInfo
+         * @example {
+         *       "interface_name": "string",
+         *       "status": "string"
+         *     }
+         */
+        l2clusterControlInterfaceInfo: {
+            interface_name?: string;
+            status?: string;
+        };
+        /**
+         * l2clusterControlLinkInformation
+         * @example {
+         *       "status": "string",
+         *       "interfaces": [
+         *         {
+         *           "interface_name": "string",
+         *           "status": "string"
+         *         }
+         *       ]
+         *     }
+         */
+        l2clusterControlLinkInformation: {
+            status?: string;
+            interfaces?: components["schemas"]["l2clusterControlInterfaceInfo"][];
+        };
+        /**
+         * CreateL2ClusterDeploymentRequest
+         * @example {
+         *       "l2_cluster_setup_config": {
+         *         "primary_device_id": "string",
+         *         "secondary_device_id": "string",
+         *         "node0_hostname": "string",
+         *         "node1_hostname": "string",
+         *         "node0_management_interface": "string",
+         *         "node1_management_interface": "string",
+         *         "node0_management_ipv4": "string",
+         *         "node1_management_ipv4": "string",
+         *         "node0_management_ipv6": "string",
+         *         "node1_management_ipv6": "string",
+         *         "node0_backup_router_ipv4": "string",
+         *         "node1_backup_router_ipv4": "string",
+         *         "node0_backup_router_ipv6": "string",
+         *         "node1_backup_router_ipv6": "string",
+         *         "node0_backup_router_ipv4_destinations": [
+         *           "string"
+         *         ],
+         *         "node1_backup_router_ipv4_destinations": [
+         *           "string"
+         *         ],
+         *         "node0_backup_router_ipv6_destinations": [
+         *           "string"
+         *         ],
+         *         "node1_backup_router_ipv6_destinations": [
+         *           "string"
+         *         ],
+         *         "node0_link1_fpc": "string",
+         *         "node0_link1_port": "string",
+         *         "node0_link2_fpc": "string",
+         *         "node0_link2_port": "string",
+         *         "node1_link1_fpc": "string",
+         *         "node1_link1_port": "string",
+         *         "node1_link2_fpc": "string",
+         *         "node1_link2_port": "string",
+         *         "fab0_link1_interface": "string",
+         *         "fab0_link2_interface": "string",
+         *         "redundancy_groups": [
+         *           {
+         *             "rg_no": "string",
+         *             "node0_priority": "string",
+         *             "node1_priority": "string"
+         *           }
+         *         ],
+         *         "reth_interfaces": [
+         *           {
+         *             "reth_no": "string",
+         *             "node0_interfaces": [
+         *               "string"
+         *             ],
+         *             "vlan_tagging": true,
+         *             "redundancy_group": "string",
+         *             "logical_interfaces": [
+         *               {
+         *                 "unit": "string",
+         *                 "vlan_id": "string",
+         *                 "ipv4_addresses": [
+         *                   "string"
+         *                 ],
+         *                 "ipv6_addresses": [
+         *                   "string"
+         *                 ]
+         *               }
+         *             ]
+         *           }
+         *         ],
+         *         "zones": [
+         *           {
+         *             "name": "string",
+         *             "protocols": [
+         *               "string"
+         *             ],
+         *             "services": [
+         *               "string"
+         *             ],
+         *             "interfaces": [
+         *               {
+         *                 "name": "string",
+         *                 "protocols": [
+         *                   "string"
+         *                 ],
+         *                 "services": [
+         *                   "string"
+         *                 ]
+         *               }
+         *             ]
+         *           }
+         *         ]
+         *       }
+         *     }
+         */
+        CreateL2ClusterDeploymentRequest: {
+            l2_cluster_setup_config: components["schemas"]["L2ClusterSetupConfig"] & unknown;
+        };
+        /**
+         * CreateL2ClusterDeploymentResponse
+         * @example {
+         *       "l2_cluster_deployment_id": "string"
+         *     }
+         */
+        CreateL2ClusterDeploymentResponse: {
+            l2_cluster_deployment_id?: string;
+        };
+        /**
+         * l2clusterDeleteL2ClusterDeploymentResponse
+         * @example {
+         *       "l2_cluster_deployment_id": "string"
+         *     }
+         */
+        l2clusterDeleteL2ClusterDeploymentResponse: {
+            l2_cluster_deployment_id?: string;
+        };
+        /**
+         * l2clusterFabricInterfaceInfo
+         * @example {
+         *       "interface_name": "string",
+         *       "physical_status": "string",
+         *       "monitored_status": "string"
+         *     }
+         */
+        l2clusterFabricInterfaceInfo: {
+            interface_name?: string;
+            physical_status?: string;
+            monitored_status?: string;
+        };
+        /**
+         * l2clusterFabricLinkInformation
+         * @example {
+         *       "status": "string",
+         *       "interfaces": [
+         *         {
+         *           "interface_name": "string",
+         *           "physical_status": "string",
+         *           "monitored_status": "string"
+         *         }
+         *       ]
+         *     }
+         */
+        l2clusterFabricLinkInformation: {
+            status?: string;
+            interfaces?: components["schemas"]["l2clusterFabricInterfaceInfo"][];
+        };
+        /**
+         * l2clusterGetL2ClusterDeploymentResponse
+         * @example {
+         *       "l2_cluster_deployment_id": "string",
+         *       "l2_cluster_setup_config": {
+         *         "primary_device_id": "string",
+         *         "secondary_device_id": "string",
+         *         "node0_hostname": "string",
+         *         "node1_hostname": "string",
+         *         "node0_management_interface": "string",
+         *         "node1_management_interface": "string",
+         *         "node0_management_ipv4": "string",
+         *         "node1_management_ipv4": "string",
+         *         "node0_management_ipv6": "string",
+         *         "node1_management_ipv6": "string",
+         *         "node0_backup_router_ipv4": "string",
+         *         "node1_backup_router_ipv4": "string",
+         *         "node0_backup_router_ipv6": "string",
+         *         "node1_backup_router_ipv6": "string",
+         *         "node0_backup_router_ipv4_destinations": [
+         *           "string"
+         *         ],
+         *         "node1_backup_router_ipv4_destinations": [
+         *           "string"
+         *         ],
+         *         "node0_backup_router_ipv6_destinations": [
+         *           "string"
+         *         ],
+         *         "node1_backup_router_ipv6_destinations": [
+         *           "string"
+         *         ],
+         *         "node0_link1_fpc": "string",
+         *         "node0_link1_port": "string",
+         *         "node0_link2_fpc": "string",
+         *         "node0_link2_port": "string",
+         *         "node1_link1_fpc": "string",
+         *         "node1_link1_port": "string",
+         *         "node1_link2_fpc": "string",
+         *         "node1_link2_port": "string",
+         *         "fab0_link1_interface": "string",
+         *         "fab0_link2_interface": "string",
+         *         "redundancy_groups": [
+         *           {
+         *             "rg_no": "string",
+         *             "node0_priority": "string",
+         *             "node1_priority": "string"
+         *           }
+         *         ],
+         *         "reth_interfaces": [
+         *           {
+         *             "reth_no": "string",
+         *             "node0_interfaces": [
+         *               "string"
+         *             ],
+         *             "vlan_tagging": true,
+         *             "redundancy_group": "string",
+         *             "logical_interfaces": [
+         *               {
+         *                 "unit": "string",
+         *                 "vlan_id": "string",
+         *                 "ipv4_addresses": [
+         *                   "string"
+         *                 ],
+         *                 "ipv6_addresses": [
+         *                   "string"
+         *                 ]
+         *               }
+         *             ]
+         *           }
+         *         ],
+         *         "zones": [
+         *           {
+         *             "name": "string",
+         *             "protocols": [
+         *               "string"
+         *             ],
+         *             "services": [
+         *               "string"
+         *             ],
+         *             "interfaces": [
+         *               {
+         *                 "name": "string",
+         *                 "protocols": [
+         *                   "string"
+         *                 ],
+         *                 "services": [
+         *                   "string"
+         *                 ]
+         *               }
+         *             ]
+         *           }
+         *         ]
+         *       }
+         *     }
+         */
+        l2clusterGetL2ClusterDeploymentResponse: {
+            l2_cluster_deployment_id?: string;
+            l2_cluster_setup_config?: components["schemas"]["L2ClusterSetupConfig"] & unknown;
+        };
+        /**
+         * GetL2ClusterDeploymentStatusResponse
+         * @example {
+         *       "status": "string",
+         *       "message": "string",
+         *       "cluster_id": "string"
+         *     }
+         */
+        GetL2ClusterDeploymentStatusResponse: {
+            status?: string;
+            message?: string;
+            cluster_id?: string;
+        };
+        /** GetL2ClusterModelConfigResponse */
+        GetL2ClusterModelConfigResponse: {
+            supported_platforms?: string[];
+            blocked_platforms?: string[];
+            dual_fabric_supported?: string[];
+            no_fabric_link?: string[];
+            models?: {
+                [key: string]: components["schemas"]["l2clusterL2ClusterModelInfo"];
+            };
+        };
+        /**
+         * l2clusterInterface
+         * @example {
+         *       "name": "string",
+         *       "protocols": [
+         *         "string"
+         *       ],
+         *       "services": [
+         *         "string"
+         *       ]
+         *     }
+         */
+        l2clusterInterface: {
+            /** @description Interface name (e.g., reth0.100). */
+            name?: string;
+            /** @description System services protocols allowed on this interface (e.g., ping, traceroute). */
+            protocols?: string[];
+            /** @description System services allowed on this interface (e.g., ssh, https, snmp). */
+            services?: string[];
+        };
+        /**
+         * l2clusterL2ClusterConflict
+         * @example {
+         *       "device_id": "string",
+         *       "node": "string",
+         *       "interface": "string",
+         *       "category": "string",
+         *       "reason": "string",
+         *       "cli_lines": [
+         *         "string"
+         *       ]
+         *     }
+         */
+        l2clusterL2ClusterConflict: {
+            device_id?: string;
+            node?: string;
+            interface?: string;
+            category?: string;
+            reason?: string;
+            cli_lines?: string[];
+        };
+        /**
+         * l2clusterL2ClusterModelInfo
+         * @example {
+         *       "management_interface": "string",
+         *       "management_interface_selectable": true,
+         *       "secondary_offset": 1,
+         *       "control_interfaces": [
+         *         "string"
+         *       ],
+         *       "control_ports_required": true,
+         *       "fabric_link_support": "string",
+         *       "reserved_control_port": "string",
+         *       "max_reth": 1,
+         *       "max_redundancy_group": 1,
+         *       "cluster_supported": true
+         *     }
+         */
+        l2clusterL2ClusterModelInfo: {
+            management_interface?: string;
+            management_interface_selectable?: boolean;
+            /** Format: int32 */
+            secondary_offset?: number;
+            control_interfaces?: string[];
+            control_ports_required?: boolean;
+            fabric_link_support?: string;
+            reserved_control_port?: string;
+            /** Format: int32 */
+            max_reth?: number;
+            /** Format: int32 */
+            max_redundancy_group?: number;
+            cluster_supported?: boolean;
+        };
+        /**
+         * L2ClusterSetupConfig
+         * @example {
+         *       "primary_device_id": "string",
+         *       "secondary_device_id": "string",
+         *       "node0_hostname": "string",
+         *       "node1_hostname": "string",
+         *       "node0_management_interface": "string",
+         *       "node1_management_interface": "string",
+         *       "node0_management_ipv4": "string",
+         *       "node1_management_ipv4": "string",
+         *       "node0_management_ipv6": "string",
+         *       "node1_management_ipv6": "string",
+         *       "node0_backup_router_ipv4": "string",
+         *       "node1_backup_router_ipv4": "string",
+         *       "node0_backup_router_ipv6": "string",
+         *       "node1_backup_router_ipv6": "string",
+         *       "node0_backup_router_ipv4_destinations": [
+         *         "string"
+         *       ],
+         *       "node1_backup_router_ipv4_destinations": [
+         *         "string"
+         *       ],
+         *       "node0_backup_router_ipv6_destinations": [
+         *         "string"
+         *       ],
+         *       "node1_backup_router_ipv6_destinations": [
+         *         "string"
+         *       ],
+         *       "node0_link1_fpc": "string",
+         *       "node0_link1_port": "string",
+         *       "node0_link2_fpc": "string",
+         *       "node0_link2_port": "string",
+         *       "node1_link1_fpc": "string",
+         *       "node1_link1_port": "string",
+         *       "node1_link2_fpc": "string",
+         *       "node1_link2_port": "string",
+         *       "fab0_link1_interface": "string",
+         *       "fab0_link2_interface": "string",
+         *       "redundancy_groups": [
+         *         {
+         *           "rg_no": "string",
+         *           "node0_priority": "string",
+         *           "node1_priority": "string"
+         *         }
+         *       ],
+         *       "reth_interfaces": [
+         *         {
+         *           "reth_no": "string",
+         *           "node0_interfaces": [
+         *             "string"
+         *           ],
+         *           "vlan_tagging": true,
+         *           "redundancy_group": "string",
+         *           "logical_interfaces": [
+         *             {
+         *               "unit": "string",
+         *               "vlan_id": "string",
+         *               "ipv4_addresses": [
+         *                 "string"
+         *               ],
+         *               "ipv6_addresses": [
+         *                 "string"
+         *               ]
+         *             }
+         *           ]
+         *         }
+         *       ],
+         *       "zones": [
+         *         {
+         *           "name": "string",
+         *           "protocols": [
+         *             "string"
+         *           ],
+         *           "services": [
+         *             "string"
+         *           ],
+         *           "interfaces": [
+         *             {
+         *               "name": "string",
+         *               "protocols": [
+         *                 "string"
+         *               ],
+         *               "services": [
+         *                 "string"
+         *               ]
+         *             }
+         *           ]
+         *         }
+         *       ]
+         *     }
+         */
+        L2ClusterSetupConfig: {
+            /** @description ID of the primary device in the L2 cluster. */
+            primary_device_id?: string;
+            /** @description ID of the secondary device in the L2 cluster. */
+            secondary_device_id?: string;
+            /** @description Hostname for node 0 (primary node) in the cluster. */
+            node0_hostname?: string;
+            /** @description Hostname for node 1 (secondary node) in the cluster. */
+            node1_hostname?: string;
+            /** @description Management interface name for node 0 (e.g., fxp0, em0). */
+            node0_management_interface?: string;
+            /** @description Management interface name for node 1 (e.g., fxp0, em0). */
+            node1_management_interface?: string;
+            /** @description IPv4 address for node 0 management interface (CIDR format). */
+            node0_management_ipv4?: string;
+            /** @description IPv4 address for node 1 management interface (CIDR format). */
+            node1_management_ipv4?: string;
+            /** @description IPv6 address for node 0 management interface (CIDR format). */
+            node0_management_ipv6?: string;
+            /** @description IPv6 address for node 1 management interface (CIDR format). */
+            node1_management_ipv6?: string;
+            /** @description IPv4 backup router (next-hop gateway) for node 0. */
+            node0_backup_router_ipv4?: string;
+            /** @description IPv4 backup router (next-hop gateway) for node 1. */
+            node1_backup_router_ipv4?: string;
+            /** @description IPv6 backup router (next-hop gateway) for node 0. */
+            node0_backup_router_ipv6?: string;
+            /** @description IPv6 backup router (next-hop gateway) for node 1. */
+            node1_backup_router_ipv6?: string;
+            /** @description IPv4 destination prefixes (CIDR) for the node 0 backup router. */
+            node0_backup_router_ipv4_destinations?: string[];
+            /** @description IPv4 destination prefixes (CIDR) for the node 1 backup router. */
+            node1_backup_router_ipv4_destinations?: string[];
+            /** @description IPv6 destination prefixes (CIDR) for the node 0 backup router. */
+            node0_backup_router_ipv6_destinations?: string[];
+            /** @description IPv6 destination prefixes (CIDR) for the node 1 backup router. */
+            node1_backup_router_ipv6_destinations?: string[];
+            /** @description FPC (Flexible PIC Concentrator) number for node 0 fabric link 1. */
+            node0_link1_fpc?: string;
+            /** @description Port number for node 0 fabric link 1. */
+            node0_link1_port?: string;
+            /** @description FPC (Flexible PIC Concentrator) number for node 0 fabric link 2. */
+            node0_link2_fpc?: string;
+            /** @description Port number for node 0 fabric link 2. */
+            node0_link2_port?: string;
+            /** @description FPC (Flexible PIC Concentrator) number for node 1 fabric link 1. */
+            node1_link1_fpc?: string;
+            /** @description Port number for node 1 fabric link 1. */
+            node1_link1_port?: string;
+            /** @description FPC (Flexible PIC Concentrator) number for node 1 fabric link 2. */
+            node1_link2_fpc?: string;
+            /** @description Port number for node 1 fabric link 2. */
+            node1_link2_port?: string;
+            /** @description Interface name for fab0 fabric link 1 (e.g., ge-0/0/1). */
+            fab0_link1_interface?: string;
+            /** @description Interface name for fab0 fabric link 2 (e.g., ge-0/0/2). */
+            fab0_link2_interface?: string;
+            /** @description Redundancy groups configuration for HA failover. */
+            redundancy_groups?: components["schemas"]["l2clusterRedundancyGroup"][];
+            /** @description Redundant Ethernet (reth) interfaces configuration. */
+            reth_interfaces?: components["schemas"]["l2clusterRethInterface"][];
+            /** @description Security zones configuration. */
+            zones?: components["schemas"]["l2clusterZone"][];
+        };
+        /**
+         * l2clusterLogicalInterface
+         * @example {
+         *       "unit": "string",
+         *       "vlan_id": "string",
+         *       "ipv4_addresses": [
+         *         "string"
+         *       ],
+         *       "ipv6_addresses": [
+         *         "string"
+         *       ]
+         *     }
+         */
+        l2clusterLogicalInterface: {
+            /** @description Logical unit number for this interface (e.g., 100 for reth0.100). */
+            unit?: string;
+            /** @description VLAN ID for this logical interface (1-4094). */
+            vlan_id?: string;
+            /** @description IPv4 addresses assigned to this logical interface (CIDR format). */
+            ipv4_addresses?: string[];
+            /** @description IPv6 addresses assigned to this logical interface (CIDR format). */
+            ipv6_addresses?: string[];
+        };
+        /**
+         * l2clusterRedundancyGroup
+         * @example {
+         *       "rg_no": "string",
+         *       "node0_priority": "string",
+         *       "node1_priority": "string"
+         *     }
+         */
+        l2clusterRedundancyGroup: {
+            /** @description Redundancy group number (e.g., 0, 1, 2). */
+            rg_no?: string;
+            /** @description Priority value for node 0 in this redundancy group (higher value = higher priority). */
+            node0_priority?: string;
+            /** @description Priority value for node 1 in this redundancy group (higher value = higher priority). */
+            node1_priority?: string;
+        };
+        /**
+         * l2clusterRedundancyGroupStatus
+         * @example {
+         *       "group_id": "string",
+         *       "failover_count": 1,
+         *       "nodes": [
+         *         {
+         *           "node_name": "string",
+         *           "priority": "string",
+         *           "status": "string",
+         *           "preempt": "string",
+         *           "manual_failover": "string",
+         *           "monitor_failures": "string"
+         *         }
+         *       ]
+         *     }
+         */
+        l2clusterRedundancyGroupStatus: {
+            group_id?: string;
+            /** Format: int32 */
+            failover_count?: number;
+            nodes?: components["schemas"]["l2clusterClusterNodeStatus"][];
+        };
+        /**
+         * l2clusterRethInterface
+         * @example {
+         *       "reth_no": "string",
+         *       "node0_interfaces": [
+         *         "string"
+         *       ],
+         *       "vlan_tagging": true,
+         *       "redundancy_group": "string",
+         *       "logical_interfaces": [
+         *         {
+         *           "unit": "string",
+         *           "vlan_id": "string",
+         *           "ipv4_addresses": [
+         *             "string"
+         *           ],
+         *           "ipv6_addresses": [
+         *             "string"
+         *           ]
+         *         }
+         *       ]
+         *     }
+         */
+        l2clusterRethInterface: {
+            /** @description Redundant Ethernet interface number (e.g., 0 for reth0, 1 for reth1). */
+            reth_no?: string;
+            /** @description Physical interfaces on node 0 that are part of this reth interface. */
+            node0_interfaces?: string[];
+            /** @description Enable VLAN tagging on this reth interface. */
+            vlan_tagging?: boolean;
+            /** @description Redundancy group number this reth interface belongs to. */
+            redundancy_group?: string;
+            /** @description Logical interfaces (units) configured on this reth interface. */
+            logical_interfaces?: components["schemas"]["l2clusterLogicalInterface"][];
+        };
+        /**
+         * l2clusterUpdateL2ClusterDeploymentResponse
+         * @example {
+         *       "l2_cluster_deployment_id": "string"
+         *     }
+         */
+        l2clusterUpdateL2ClusterDeploymentResponse: {
+            l2_cluster_deployment_id?: string;
+        };
+        /**
+         * ValidateL2ClusterDeploymentRequest
+         * @example {
+         *       "l2_cluster_setup_config": {
+         *         "primary_device_id": "string",
+         *         "secondary_device_id": "string",
+         *         "node0_hostname": "string",
+         *         "node1_hostname": "string",
+         *         "node0_management_interface": "string",
+         *         "node1_management_interface": "string",
+         *         "node0_management_ipv4": "string",
+         *         "node1_management_ipv4": "string",
+         *         "node0_management_ipv6": "string",
+         *         "node1_management_ipv6": "string",
+         *         "node0_backup_router_ipv4": "string",
+         *         "node1_backup_router_ipv4": "string",
+         *         "node0_backup_router_ipv6": "string",
+         *         "node1_backup_router_ipv6": "string",
+         *         "node0_backup_router_ipv4_destinations": [
+         *           "string"
+         *         ],
+         *         "node1_backup_router_ipv4_destinations": [
+         *           "string"
+         *         ],
+         *         "node0_backup_router_ipv6_destinations": [
+         *           "string"
+         *         ],
+         *         "node1_backup_router_ipv6_destinations": [
+         *           "string"
+         *         ],
+         *         "node0_link1_fpc": "string",
+         *         "node0_link1_port": "string",
+         *         "node0_link2_fpc": "string",
+         *         "node0_link2_port": "string",
+         *         "node1_link1_fpc": "string",
+         *         "node1_link1_port": "string",
+         *         "node1_link2_fpc": "string",
+         *         "node1_link2_port": "string",
+         *         "fab0_link1_interface": "string",
+         *         "fab0_link2_interface": "string",
+         *         "redundancy_groups": [
+         *           {
+         *             "rg_no": "string",
+         *             "node0_priority": "string",
+         *             "node1_priority": "string"
+         *           }
+         *         ],
+         *         "reth_interfaces": [
+         *           {
+         *             "reth_no": "string",
+         *             "node0_interfaces": [
+         *               "string"
+         *             ],
+         *             "vlan_tagging": true,
+         *             "redundancy_group": "string",
+         *             "logical_interfaces": [
+         *               {
+         *                 "unit": "string",
+         *                 "vlan_id": "string",
+         *                 "ipv4_addresses": [
+         *                   "string"
+         *                 ],
+         *                 "ipv6_addresses": [
+         *                   "string"
+         *                 ]
+         *               }
+         *             ]
+         *           }
+         *         ],
+         *         "zones": [
+         *           {
+         *             "name": "string",
+         *             "protocols": [
+         *               "string"
+         *             ],
+         *             "services": [
+         *               "string"
+         *             ],
+         *             "interfaces": [
+         *               {
+         *                 "name": "string",
+         *                 "protocols": [
+         *                   "string"
+         *                 ],
+         *                 "services": [
+         *                   "string"
+         *                 ]
+         *               }
+         *             ]
+         *           }
+         *         ]
+         *       }
+         *     }
+         */
+        ValidateL2ClusterDeploymentRequest: {
+            l2_cluster_setup_config: components["schemas"]["L2ClusterSetupConfig"] & unknown;
+        };
+        /**
+         * ValidateL2ClusterDeploymentResponse
+         * @example {
+         *       "valid": true,
+         *       "conflicts": [
+         *         {
+         *           "device_id": "string",
+         *           "node": "string",
+         *           "interface": "string",
+         *           "category": "string",
+         *           "reason": "string",
+         *           "cli_lines": [
+         *             "string"
+         *           ]
+         *         }
+         *       ]
+         *     }
+         */
+        ValidateL2ClusterDeploymentResponse: {
+            valid?: boolean;
+            conflicts?: components["schemas"]["l2clusterL2ClusterConflict"][];
+        };
+        /**
+         * l2clusterZone
+         * @example {
+         *       "name": "string",
+         *       "protocols": [
+         *         "string"
+         *       ],
+         *       "services": [
+         *         "string"
+         *       ],
+         *       "interfaces": [
+         *         {
+         *           "name": "string",
+         *           "protocols": [
+         *             "string"
+         *           ],
+         *           "services": [
+         *             "string"
+         *           ]
+         *         }
+         *       ]
+         *     }
+         */
+        l2clusterZone: {
+            /** @description Name of the security zone (e.g., trust, untrust, dmz). */
+            name?: string;
+            /** @description System services protocols allowed in this zone (e.g., ping, traceroute). */
+            protocols?: string[];
+            /** @description System services allowed in this zone (e.g., ssh, https, snmp). */
+            services?: string[];
+            /** @description Interfaces assigned to this security zone. */
+            interfaces?: components["schemas"]["l2clusterInterface"][];
         };
         /**
          * SetupRMADeviceRequest
@@ -10381,12 +12775,260 @@ export interface components {
             license?: components["schemas"]["ReactivateRMADeviceInputLicense"];
             default_ca?: components["schemas"]["ReactivateRMADeviceInputDefaultCa"];
         };
+        /** CreateMnhaClusterRequestInterconnect */
+        CreateMnhaClusterRequestInterconnect: {
+            /** @description Interconnect network/subnet in CIDR notation, shared across both devices (e.g. 10.0.0.0/24). */
+            network?: string;
+            /** @description OSPF area for the interconnect, shared across both devices. Accepts a plain integer (e.g. 0), a dotted-decimal IP (e.g. 0.0.0.0), or a hostname string. */
+            ospf_area?: string;
+        };
+        /** CreateMnhaClusterRequestVpnProfile */
+        CreateMnhaClusterRequestVpnProfile: {
+            ike_settings?: components["schemas"]["MnhaVPNProfileIkeSettings"];
+            ipsec_settings?: components["schemas"]["MnhaVPNProfileIpsecSettings"];
+            authentication?: components["schemas"]["MnhaVPNProfileAuthentication"];
+        };
+        /** GetMnhaClusterResponseInterconnect */
+        GetMnhaClusterResponseInterconnect: {
+            /** @description Interconnect network/subnet in CIDR notation, shared across both devices (e.g. 10.0.0.0/24). */
+            network?: string;
+            /** @description OSPF area for the interconnect, shared across both devices. Accepts a plain integer (e.g. 0), a dotted-decimal IP (e.g. 0.0.0.0), or a hostname string. */
+            ospf_area?: string;
+        };
+        /** GetMnhaClusterResponseVpnProfile */
+        GetMnhaClusterResponseVpnProfile: {
+            ike_settings?: components["schemas"]["MnhaVPNProfileIkeSettings"];
+            ipsec_settings?: components["schemas"]["MnhaVPNProfileIpsecSettings"];
+            authentication?: components["schemas"]["MnhaVPNProfileAuthentication"];
+        };
         /** GetRMAReactivationConfigResponseReactivationConfig */
         GetRMAReactivationConfigResponseReactivationConfig: {
             /** @description Format of the configuration content. Typically 'text' for CLI commands or 'xml' for XML configuration. Determines how the device should interpret the config_contents field. */
             config_format?: string;
             /** @description The actual configuration content to be applied to the device. Format depends on config_format field. For 'text' format, this contains CLI set commands. For 'xml' format, this contains hierarchical XML configuration. */
             config_contents?: string;
+        };
+        /** IngCreateMnhaClusterWrapperRequestInterconnect */
+        IngCreateMnhaClusterWrapperRequestInterconnect: {
+            /** @description Interconnect network/subnet in CIDR notation, shared across both devices (e.g. 10.0.0.0/24). */
+            network?: string;
+            /** @description OSPF area for the interconnect, shared across both devices. Accepts a plain integer (e.g. 0), a dotted-decimal IP (e.g. 0.0.0.0), or a hostname string. */
+            ospf_area?: string;
+        };
+        /** IngCreateMnhaClusterWrapperRequestVpnProfile */
+        IngCreateMnhaClusterWrapperRequestVpnProfile: {
+            ike_settings?: components["schemas"]["MnhaVPNProfileIkeSettings"];
+            ipsec_settings?: components["schemas"]["MnhaVPNProfileIpsecSettings"];
+            authentication?: components["schemas"]["MnhaVPNProfileAuthentication"];
+        };
+        /** IngGetMnhaClusterWrapperResponseInterconnect */
+        IngGetMnhaClusterWrapperResponseInterconnect: {
+            /** @description Interconnect network/subnet in CIDR notation, shared across both devices (e.g. 10.0.0.0/24). */
+            network?: string;
+            /** @description OSPF area for the interconnect, shared across both devices. Accepts a plain integer (e.g. 0), a dotted-decimal IP (e.g. 0.0.0.0), or a hostname string. */
+            ospf_area?: string;
+        };
+        /** IngGetMnhaClusterWrapperResponseVpnProfile */
+        IngGetMnhaClusterWrapperResponseVpnProfile: {
+            ike_settings?: components["schemas"]["MnhaVPNProfileIkeSettings"];
+            ipsec_settings?: components["schemas"]["MnhaVPNProfileIpsecSettings"];
+            authentication?: components["schemas"]["MnhaVPNProfileAuthentication"];
+        };
+        /** IngSaveMnhaDraftRequestInterconnect */
+        IngSaveMnhaDraftRequestInterconnect: {
+            /** @description Interconnect network/subnet in CIDR notation, shared across both devices (e.g. 10.0.0.0/24). */
+            network?: string;
+            /** @description OSPF area for the interconnect, shared across both devices. Accepts a plain integer (e.g. 0), a dotted-decimal IP (e.g. 0.0.0.0), or a hostname string. */
+            ospf_area?: string;
+        };
+        /** IngSaveMnhaDraftRequestVpnProfile */
+        IngSaveMnhaDraftRequestVpnProfile: {
+            ike_settings?: components["schemas"]["MnhaVPNProfileIkeSettings"];
+            ipsec_settings?: components["schemas"]["MnhaVPNProfileIpsecSettings"];
+            authentication?: components["schemas"]["MnhaVPNProfileAuthentication"];
+        };
+        /** IngUpdateMnhaClusterWrapperRequestInterconnect */
+        IngUpdateMnhaClusterWrapperRequestInterconnect: {
+            /** @description Interconnect network/subnet in CIDR notation, shared across both devices (e.g. 10.0.0.0/24). */
+            network?: string;
+            /** @description OSPF area for the interconnect, shared across both devices. Accepts a plain integer (e.g. 0), a dotted-decimal IP (e.g. 0.0.0.0), or a hostname string. */
+            ospf_area?: string;
+        };
+        /** IngUpdateMnhaClusterWrapperRequestVpnProfile */
+        IngUpdateMnhaClusterWrapperRequestVpnProfile: {
+            ike_settings?: components["schemas"]["MnhaVPNProfileIkeSettings"];
+            ipsec_settings?: components["schemas"]["MnhaVPNProfileIpsecSettings"];
+            authentication?: components["schemas"]["MnhaVPNProfileAuthentication"];
+        };
+        /** MnhaDeviceConfigIcd */
+        MnhaDeviceConfigIcd: {
+            interface: components["schemas"]["MnhaIcdConfigInterface"];
+            /** @description Logical underlay interface names associated with the ICD link when the interface is a loopback. Required (at least one) when interface.name starts with lo0; must be empty otherwise. */
+            loopback_underlay_interfaces?: string[];
+        };
+        /** MnhaDeviceConfigIcl */
+        MnhaDeviceConfigIcl: {
+            interface: components["schemas"]["MnhaIclConfigInterface"];
+            /** @description Logical underlay interface names associated with the ICL link when the interface is a loopback. Required (at least one) when interface.name starts with lo0; must be empty otherwise. */
+            loopback_underlay_interfaces?: string[];
+        };
+        /** MnhaDeviceConfigSrg0 */
+        MnhaDeviceConfigSrg0: {
+            /** @description Signal route IP address for SRG 0. */
+            signal_route_ip?: string;
+            /** @description Routing instance for the SRG 0 signal route. */
+            routing_instance?: string;
+            /**
+             * Format: int32
+             * @description Threshold for SRG 0. Valid range: 1–1000. Only applicable when monitorobject entries are present.
+             */
+            threshold?: number;
+            monitor?: components["schemas"]["MnhaSRG0ConfigMonitor"];
+            /** @description Advanced monitoring objects (up to 10). Each requires a threshold and at least one of: interfaces, bfd_liveliness, ip. Mutually exclusive with monitor. */
+            monitorobject?: components["schemas"]["MnhaSRGMonitoringObject"][];
+            /** @description Context-aware SRG 0 prefix-list references (name + logical_system_name). Used to generate SRG 0 policy-statements and disambiguate same-named prefix lists across root/lsys/tsys. */
+            prefix_list?: components["schemas"]["MnhaSRGPrefixListRef"][];
+            /** @description Logical WAN/LAN interfaces (with a unit suffix, e.g. ge-0/0/2.0) bound to SRG 0 for OSPF, rendered as 'services-redundancy-group 0 interface <name> ospf'. Each interface must belong to a configured WAN or LAN zone on this device and may be bound to only one SRG. Requires Junos 25.4R2 / 25.4X300-D30 / 26.2R2 / 26.4R1+. */
+            ospf_interfaces?: string[];
+            /** @description BGP neighbours associated with SRG 0, each an interface + neighbour-address pair. SRG 0's policy statements are exported only to these neighbours, and only to the ones whose interface is on the side the statement advertises out of. An empty list keeps the legacy behaviour of exporting to every neighbour of the matching interfaces. */
+            bgp_neighbors?: components["schemas"]["MnhaSRGBgpNeighbor"][];
+        };
+        /** MnhaIcdConfigInterface */
+        MnhaIcdConfigInterface: {
+            /** @description Logical interface name (e.g. ae0, xe-0/0/0). Required. */
+            name: string;
+            /** @description IPv4 or IPv6 interface address in CIDR notation, including the prefix length (e.g. 192.168.0.1/30 or 2001:db8::1/64). Required. A plain IP without a prefix length is not accepted. */
+            ip: string;
+        };
+        /** MnhaIclConfigInterface */
+        MnhaIclConfigInterface: {
+            /** @description Logical interface name (e.g. ae0, xe-0/0/0). Required. */
+            name: string;
+            /** @description IPv4 or IPv6 interface address in CIDR notation, including the prefix length (e.g. 192.168.0.1/30 or 2001:db8::1/64). Required. A plain IP without a prefix length is not accepted. */
+            ip: string;
+        };
+        /** MnhaProtocolBgp */
+        MnhaProtocolBgp: {
+            /** @description BGP session type. Required. Allowed values: internal, external. */
+            bgp_type?: string;
+            /** @description Required. Local BGP address. Must be a plain IP (no prefix) already configured on the interface. */
+            local_address?: string;
+            /** @description Required. Local autonomous system number. Accepts a plain number (1-4294967294) or asdot notation high.low (e.g. 65535.65534). */
+            local_as?: string;
+            /** @description Peer autonomous system number. Required for external BGP; must not be set for internal BGP. Accepts a plain number (1-4294967294) or asdot notation high.low (e.g. 65535.65534). */
+            peer_as?: string;
+            /** @description Required. List of BGP neighbor IP addresses. At least one entry required. */
+            neighbors?: string[];
+        };
+        /** MnhaProtocolOspf */
+        MnhaProtocolOspf: {
+            /** @description OSPF area identifier in IP address format (e.g. 0.0.0.0). */
+            area?: string;
+        };
+        /** MnhaSRG0ConfigMonitor */
+        MnhaSRG0ConfigMonitor: {
+            /** @description Interface names to monitor. */
+            interface?: string[];
+            /** @description BFD liveliness monitoring configurations. */
+            bfd_liveliness?: components["schemas"]["MnhaSRGMonitorBFDLiveliness"][];
+            /** @description IP monitoring configurations. */
+            ip?: components["schemas"]["MnhaSRGMonitorIP"][];
+        };
+        /** MnhaSRGConfigActivenessProbe */
+        MnhaSRGConfigActivenessProbe: {
+            /** @description Source IP address for the activeness probe. */
+            source_ip?: string;
+            /** @description Destination IP address for the activeness probe. */
+            destination_ip?: string;
+            /** @description Routing instance for the activeness probe. */
+            routing_instance?: string;
+        };
+        /** MnhaSRGConfigMonitor */
+        MnhaSRGConfigMonitor: {
+            /** @description Interface names to monitor. */
+            interface?: string[];
+            /** @description BFD liveliness monitoring configurations. */
+            bfd_liveliness?: components["schemas"]["MnhaSRGMonitorBFDLiveliness"][];
+            /** @description IP monitoring configurations. */
+            ip?: components["schemas"]["MnhaSRGMonitorIP"][];
+        };
+        /** MnhaSRGConfigSignalRoute */
+        MnhaSRGConfigSignalRoute: {
+            /** @description Active signal route IP address. */
+            active: string;
+            /** @description Backup signal route IP address. */
+            backup: string;
+            /** @description Routing instance for the active and backup signal routes. */
+            routing_instance?: string;
+        };
+        /** MnhaSRGMonitoringObjectBfdLiveliness */
+        MnhaSRGMonitoringObjectBfdLiveliness: {
+            /**
+             * Format: int32
+             * @description Threshold value for BFD liveliness monitoring.
+             */
+            threshold?: number;
+            /** @description List of BFD liveliness destination entries. */
+            destinations?: components["schemas"]["MnhaSRGMonitoringBFDDest"][];
+        };
+        /** MnhaSRGMonitoringObjectInterfaces */
+        MnhaSRGMonitoringObjectInterfaces: {
+            /**
+             * Format: int32
+             * @description Threshold value for interface monitoring.
+             */
+            threshold?: number;
+            /** @description List of monitored interfaces with their weights. */
+            interfaces?: components["schemas"]["MnhaSRGMonitoringInterfaceItem"][];
+        };
+        /** MnhaSRGMonitoringObjectIp */
+        MnhaSRGMonitoringObjectIp: {
+            /**
+             * Format: int32
+             * @description Threshold value for IP monitoring.
+             */
+            threshold?: number;
+            /** @description List of IP monitoring destination entries. */
+            destinations?: components["schemas"]["MnhaSRGMonitoringIPDest"][];
+        };
+        /** MnhaVPNAuthenticationPreSharedKey */
+        MnhaVPNAuthenticationPreSharedKey: {
+            /** @description How the pre-shared key is provisioned. Allowed values: autogen, manual. Defaults to autogen if not provided. */
+            type?: string;
+            /** @description The pre-shared key value. Required when type is manual. */
+            value?: string;
+        };
+        /** MnhaVPNProfileAuthentication */
+        MnhaVPNProfileAuthentication: {
+            /** @description Authentication method. Allowed values: pre-shared-keys, certificates. Defaults to pre-shared-keys if not provided. */
+            method?: string;
+            pre_shared_key?: components["schemas"]["MnhaVPNAuthenticationPreSharedKey"];
+            /** @description Per-device certificate references, keyed by device_uuid. Required when method is certificates — one entry per cluster device, each providing that device's local and trusted certificate names. */
+            device_certificates?: components["schemas"]["MnhaVPNDeviceCertificate"][];
+        };
+        /** MnhaVPNProfileIkeSettings */
+        MnhaVPNProfileIkeSettings: {
+            /** @description Diffie-Hellman group. Allowed values: group14, group15, group16, group19, group20, group21, group24. Defaults to group19 if not provided. */
+            dh_group?: string;
+            /** @description Authentication algorithm for IKE. Allowed values: sha-256, sha-384, sha-512. Default: sha-256. Must not be set when using a GCM encryption algorithm (AEAD — authentication is built in). */
+            authentication_algorithm?: string;
+            /** @description Encryption algorithm for IKE. Allowed values: aes-128-cbc, aes-128-gcm, aes-192-cbc, aes-192-gcm, aes-256-cbc, aes-256-gcm. Default: aes-256-gcm. */
+            encryption_algorithm?: string;
+            /**
+             * Format: int32
+             * @description IKE SA lifetime in seconds. Valid range: 180–86400. Omit to use the device default.
+             */
+            lifetime_seconds?: number;
+        };
+        /** MnhaVPNProfileIpsecSettings */
+        MnhaVPNProfileIpsecSettings: {
+            /** @description Encryption algorithm for IPsec. Allowed values: aes-256-gcm. Default: aes-256-gcm. */
+            encryption_algorithm?: string;
+            /**
+             * Format: int32
+             * @description IPsec SA lifetime in seconds. Valid range: 180–86400. Omit to use the device default.
+             */
+            lifetime_seconds?: number;
         };
         /** ReactivateRMADeviceInputDefaultCa */
         ReactivateRMADeviceInputDefaultCa: {
@@ -11545,6 +14187,25 @@ export interface components {
             uuid?: string;
         };
         /**
+         * DownloadSignaturesRequest
+         * @example {
+         *       "version_no": "string",
+         *       "download_url_categories": true,
+         *       "schedule_time": "string",
+         *       "auto_download": true
+         *     }
+         */
+        DownloadSignaturesRequest: {
+            /** @description Signature version number to download (0 for latest) */
+            version_no?: string;
+            /** @description Whether to also download URL categories */
+            download_url_categories?: boolean;
+            /** @description Optional schedule time for the download job (ISO 8601 format) */
+            schedule_time?: string;
+            /** @description Enable automatic download of future updates */
+            auto_download?: boolean;
+        };
+        /**
          * ECFNotificationOptions
          * @example {
          *       "custom_notification_message": "string",
@@ -11907,6 +14568,49 @@ export interface components {
              * @default false
              */
             files_meet_verdict_threshold: boolean;
+        };
+        /**
+         * IDPAppSignature
+         * @example {
+         *       "detectors": "string",
+         *       "version": 1,
+         *       "install_device_count": 1,
+         *       "supported_platform": "string",
+         *       "update_status": 1,
+         *       "state": "string",
+         *       "publish_date": "string",
+         *       "uri": "string",
+         *       "href": "string"
+         *     }
+         */
+        IDPAppSignature: {
+            /** @description Comma-separated list of detector versions */
+            detectors?: string;
+            /**
+             * Format: int32
+             * @description Signature version number
+             */
+            version?: number;
+            /**
+             * Format: int32
+             * @description Number of devices with this signature installed
+             */
+            install_device_count?: number;
+            /** @description Supported platforms and versions */
+            supported_platform?: string;
+            /**
+             * Format: int32
+             * @description Update status code (1=downloaded, 2=parsed, etc.)
+             */
+            update_status?: number;
+            /** @description Current state of signature (NOT_PARSE, PARSED, etc.) */
+            state?: string;
+            /** @description Publication date and time */
+            publish_date?: string;
+            /** @description Resource URI (null if not applicable) */
+            uri?: string;
+            /** @description Resource HREF link (null if not applicable) */
+            href?: string;
         };
         /**
          * IPSExemptRule
@@ -12732,6 +15436,16 @@ export interface components {
             name?: string;
         };
         /**
+         * OfflineSignatureDownloadRequest
+         * @example {
+         *       "file_name": "string"
+         *     }
+         */
+        OfflineSignatureDownloadRequest: {
+            /** @description Name of the uploaded signature file to process */
+            file_name: string;
+        };
+        /**
          * PassThroughOptions
          * @description Specify options related to pass through authentication type
          * @example {
@@ -12912,7 +15626,7 @@ export interface components {
             readonly uuid: string;
             /** @description Name of the object */
             name?: string;
-            /** @description Description of the object. Format: ^.{0,255}$ */
+            /** @description Description of the object. Format: ^.{0,999}$ */
             description?: string;
             /**
              * @description SSL proxy profile type. Allowed values: [REVERSE, FORWARD]
@@ -13070,7 +15784,7 @@ export interface components {
             readonly uuid: string;
             /** @description Name of the secintel profile object. Format: ^[a-zA-Z0-9_][a-zA-Z0-9-_.:/\\s]{0,62}$ */
             name: string;
-            /** @description Description of the object. Format: ^.{0,255}$ */
+            /** @description Description of the object. Format: ^.{0,999}$ */
             description?: string;
             /** @description Allowed values: [CC, DNS, Infected-Hosts] */
             feed_category?: string;
@@ -13092,6 +15806,84 @@ export interface components {
             specific_feeds_action?: components["schemas"]["FeedsList"][];
         };
         /**
+         * SignatureDetector
+         * @example {
+         *       "id": "string",
+         *       "osversion": "string",
+         *       "platform": "string",
+         *       "version": "string",
+         *       "uri": "string"
+         *     }
+         */
+        SignatureDetector: {
+            /** @description Detector ID (null if not assigned) */
+            id?: string;
+            /** @description Operating system version (e.g., '12.3', '19.3') */
+            osversion?: string;
+            /** @description Platform name (e.g., 'srx', 'vsrx', 'srx-branch') */
+            platform?: string;
+            /** @description Detector version string */
+            version?: string;
+            /** @description Resource URI (null if not applicable) */
+            uri?: string;
+        };
+        /**
+         * SignatureDetectorsResponse
+         * @example {
+         *       "items": [
+         *         {
+         *           "id": "string",
+         *           "osversion": "string",
+         *           "platform": "string",
+         *           "version": "string",
+         *           "uri": "string"
+         *         }
+         *       ],
+         *       "count": 1
+         *     }
+         */
+        SignatureDetectorsResponse: {
+            /** @description List of available signature detectors */
+            items?: components["schemas"]["SignatureDetector"][];
+            /**
+             * Format: int32
+             * @description Total number of signature detectors returned
+             */
+            count?: number;
+        };
+        /**
+         * SignatureDownloadStatusResponse
+         * @example {
+         *       "download_id": "string",
+         *       "status": "string",
+         *       "status_message": "string",
+         *       "start_time": "string",
+         *       "finish_time": "string"
+         *     }
+         */
+        SignatureDownloadStatusResponse: {
+            /** @description UUID of the download job */
+            download_id?: string;
+            /** @description Current status of the download job (e.g. PENDING, INPROGRESS, SUCCESS, FAILURE) */
+            status?: string;
+            /** @description Human-readable message describing the current status or failure reason */
+            status_message?: string;
+            /** @description Unix timestamp (seconds) when the download job started */
+            start_time?: string;
+            /** @description Unix timestamp (seconds) when the download job completed (0 if still running) */
+            finish_time?: string;
+        };
+        /**
+         * SignatureJobResponse
+         * @example {
+         *       "download_id": "string"
+         *     }
+         */
+        SignatureJobResponse: {
+            /** @description UUID of the created download job. Use with GET /api/v1/signatures/download/{download_id} to poll status. */
+            download_id?: string;
+        };
+        /**
          * SignatureReference
          * @example {
          *       "uuid": "string",
@@ -13103,6 +15895,36 @@ export interface components {
             uuid?: string;
             /** @description Name of the IPS signature */
             name?: string;
+        };
+        /**
+         * SignaturesResponse
+         * @example {
+         *       "idp_app_signature": {
+         *         "detectors": "string",
+         *         "version": 1,
+         *         "install_device_count": 1,
+         *         "supported_platform": "string",
+         *         "update_status": 1,
+         *         "state": "string",
+         *         "publish_date": "string",
+         *         "uri": "string",
+         *         "href": "string"
+         *       },
+         *       "url_category": {
+         *         "items": [
+         *           {
+         *             "name": "string",
+         *             "file_version": 1,
+         *             "publish_date": "string",
+         *             "supported_junos": "string"
+         *           }
+         *         ]
+         *       }
+         *     }
+         */
+        SignaturesResponse: {
+            idp_app_signature?: components["schemas"]["IDPAppSignature"] & unknown;
+            url_category?: components["schemas"]["URLCategoryInfo"] & unknown;
         };
         /**
          * ThenOptions
@@ -13185,6 +16007,45 @@ export interface components {
             post_attack_timeout?: number;
             /** @description Severity */
             severity?: string;
+        };
+        /**
+         * URLCategoryFile
+         * @example {
+         *       "name": "string",
+         *       "file_version": 1,
+         *       "publish_date": "string",
+         *       "supported_junos": "string"
+         *     }
+         */
+        URLCategoryFile: {
+            /** @description Category file name */
+            name?: string;
+            /**
+             * Format: int32
+             * @description File version number
+             */
+            file_version?: number;
+            /** @description Publication date as Unix timestamp */
+            publish_date?: string;
+            /** @description Supported Junos versions */
+            supported_junos?: string;
+        };
+        /**
+         * URLCategoryInfo
+         * @example {
+         *       "items": [
+         *         {
+         *           "name": "string",
+         *           "file_version": 1,
+         *           "publish_date": "string",
+         *           "supported_junos": "string"
+         *         }
+         *       ]
+         *     }
+         */
+        URLCategoryInfo: {
+            /** @description List of URL category files */
+            items?: components["schemas"]["URLCategoryFile"][];
         };
         /**
          * UpdateGlobalProfileRequest
@@ -13417,7 +16278,7 @@ export interface components {
             readonly uuid: string;
             /** @description Name of the web-filtering-profile object. Format: ^[a-zA-Z0-9][a-zA-Z0-9-_@!#$%^*-+,.:/\\s]{0,28}$ */
             name: string;
-            /** @description Description of the object. Format: ^.{0,255}$ */
+            /** @description Description of the object. Format: ^.{0,999}$ */
             description?: string;
             /** @description Web filtering profile type. Allowed values: [WEBSENSE, LOCAL, JUNIPER_ENHANCED, NG_JUNIPER] */
             profile_type: string;
@@ -14226,7 +17087,7 @@ export interface components {
             readonly uuid: string;
             /** @description Name of the address object. Format: ^[a-zA-Z0-9][a-zA-Z0-9-_.:/\\\\s]{0,63}$ */
             name: string;
-            /** @description Description of the address object. Format: ^[^<>&]{0,899}$ */
+            /** @description Description of the address object. Format: ^[^<>&\n]{0,900}$ */
             description?: string;
             /** @description Type of the address object. When set to GROUP, only uuid, name, description, address references (group members) are relevant; all other fields are ignored. The types ANY, ANY_IPV6, ANY_IPV4, and ALL_IPV6 are managed by the system—users can view them, but cannot create or modify these types.. Allowed values: [IPADDRESS, GROUP, RANGE, NETWORK, WILDCARD, DNS, POLYMORPHIC, ANY, ANY_IPV4, ANY_IPV6, ALL_IPV6, DYNAMIC_ADDRESS_GROUP, VARIABLE, SECPROFILING_FEED] */
             address_type: string;
@@ -14328,7 +17189,7 @@ export interface components {
         AddressInput: {
             /** @description Name of the address object. Format: ^[a-zA-Z0-9][a-zA-Z0-9-_.:/\\\\s]{0,63}$ */
             name: string;
-            /** @description Description of the address object. Format: ^[^<>&]{0,899}$ */
+            /** @description Description of the address object. Format: ^[^<>&\n]{0,900}$ */
             description?: string;
             /** @description Type of the address object. When set to GROUP, only uuid, name, description, address references (group members) are relevant; all other fields are ignored. The types ANY, ANY_IPV6, ANY_IPV4, and ALL_IPV6 are managed by the system—users can view them, but cannot create or modify these types.. Allowed values: [IPADDRESS, GROUP, RANGE, NETWORK, WILDCARD, DNS, POLYMORPHIC, ANY, ANY_IPV4, ANY_IPV6, ALL_IPV6, DYNAMIC_ADDRESS_GROUP, VARIABLE, SECPROFILING_FEED] */
             address_type: string;
@@ -14396,7 +17257,7 @@ export interface components {
             readonly uuid: string;
             /** @description Name of the anti-spam object. Format: ^[a-zA-Z0-9][a-zA-Z0-9-_@!#$%^*-+,.:/\\s]{0,28}$ */
             name: string;
-            /** @description Description of the object. Format: ^.{0,255}$ */
+            /** @description Description of the object. Format: ^.{0,999}$ */
             description?: string;
             /** @description Enables server-based spam filtering. If left off (default), local spam filtering will be used. */
             sophos_blocklist?: boolean;
@@ -14419,7 +17280,7 @@ export interface components {
         AntiSpamProfileInput: {
             /** @description Name of the anti-spam object. Format: ^[a-zA-Z0-9][a-zA-Z0-9-_@!#$%^*-+,.:/\\s]{0,28}$ */
             name: string;
-            /** @description Description of the object. Format: ^.{0,255}$ */
+            /** @description Description of the object. Format: ^.{0,999}$ */
             description?: string;
             /** @description Enables server-based spam filtering. If left off (default), local spam filtering will be used. */
             sophos_blocklist?: boolean;
@@ -14472,7 +17333,7 @@ export interface components {
             readonly uuid: string;
             /** @description Name of the anti-virus-profile object. Format: ^[a-zA-Z0-9][a-zA-Z0-9-_@!#$%^*-+,.:/\\s]{0,28}$ */
             name: string;
-            /** @description Description of the object. Format: ^.{0,255}$ */
+            /** @description Description of the object. Format: ^.{0,999}$ */
             description?: string;
             /**
              * @description Profile type. Allowed values: [SOPHOS]
@@ -14526,7 +17387,7 @@ export interface components {
         AntiVirusProfileInput: {
             /** @description Name of the anti-virus-profile object. Format: ^[a-zA-Z0-9][a-zA-Z0-9-_@!#$%^*-+,.:/\\s]{0,28}$ */
             name: string;
-            /** @description Description of the object. Format: ^.{0,255}$ */
+            /** @description Description of the object. Format: ^.{0,999}$ */
             description?: string;
             /**
              * @description Profile type. Allowed values: [SOPHOS]
@@ -14548,7 +17409,7 @@ export interface components {
             readonly uuid: string;
             /** @description Name of the application signature object. Format: ^[a-zA-Z0-9][a-zA-Z0-9-_.:/\\\\s]{0,62}$ */
             name: string;
-            /** @description Description of the object */
+            /** @description Description of the object. Format: ^[^<>&\n]{0,255}$ */
             description?: string;
             /** @description Application Signature version. Value corresponds to signature_version in the signature file. This is mainly required for PREDEFINED applications. Applicable only when app_sig_type is APPLICATION. */
             readonly signature_version?: string;
@@ -14599,7 +17460,7 @@ export interface components {
         ApplicationInput: {
             /** @description Name of the application signature object. Format: ^[a-zA-Z0-9][a-zA-Z0-9-_.:/\\\\s]{0,62}$ */
             name: string;
-            /** @description Description of the object */
+            /** @description Description of the object. Format: ^[^<>&\n]{0,255}$ */
             description?: string;
             /** @description Type of the application signature object. When set to GROUP, only uuid, name, description, application references (group members), and hash_key are relevant; all other fields are ignored.. Allowed values: [APPLICATION, GROUP] */
             app_sig_type: string;
@@ -14878,7 +17739,7 @@ export interface components {
             readonly uuid: string;
             /** @description Name of the flow based anti-virus profile object. Format: ^[a-zA-Z0-9][a-zA-Z0-9-_.:/\\s]{0,62}$ */
             name: string;
-            /** @description Description of the object. Format: ^.{0,255}$ */
+            /** @description Description of the object. Format: ^.{0,999}$ */
             description?: string;
             /** @description The threshold value to determine when a file is considered infected. Accepts values from 1 to 10. */
             verdict_threshold: string;
@@ -14933,7 +17794,7 @@ export interface components {
         FlowBasedAntivirusProfileInput: {
             /** @description Name of the flow based anti-virus profile object. Format: ^[a-zA-Z0-9][a-zA-Z0-9-_.:/\\s]{0,62}$ */
             name: string;
-            /** @description Description of the object. Format: ^.{0,255}$ */
+            /** @description Description of the object. Format: ^.{0,999}$ */
             description?: string;
             /** @description The threshold value to determine when a file is considered infected. Accepts values from 1 to 10. */
             verdict_threshold: string;
@@ -15152,7 +18013,7 @@ export interface components {
             readonly uuid: string;
             /** @description Name of the icap profile object. Format: ^[a-zA-Z0-9_][a-zA-Z0-9-_.:/\\s]{0,62}$ */
             name: string;
-            /** @description Description of the object. Format: ^.{0,255}$ */
+            /** @description Description of the object. Format: ^.{0,999}$ */
             description?: string;
             /**
              * Format: int32
@@ -15198,7 +18059,7 @@ export interface components {
         IcapProfileInput: {
             /** @description Name of the icap profile object. Format: ^[a-zA-Z0-9_][a-zA-Z0-9-_.:/\\s]{0,62}$ */
             name: string;
-            /** @description Description of the object. Format: ^.{0,255}$ */
+            /** @description Description of the object. Format: ^.{0,999}$ */
             description?: string;
             /**
              * Format: int32
@@ -15242,7 +18103,7 @@ export interface components {
             readonly uuid: string;
             /** @description Name of the Icap server Profile. Format: ^[a-zA-Z0-9][a-zA-Z0-9-_.:/\\\\s]{0,62}$ */
             name: string;
-            /** @description Description of the object. Format: ^.{0,255}$ */
+            /** @description Description of the object. Format: ^.{0,999}$ */
             description?: string;
             /** @description hostname or ip address */
             host: string;
@@ -15298,7 +18159,7 @@ export interface components {
         IcapServerInput: {
             /** @description Name of the Icap server Profile. Format: ^[a-zA-Z0-9][a-zA-Z0-9-_.:/\\\\s]{0,62}$ */
             name: string;
-            /** @description Description of the object. Format: ^.{0,255}$ */
+            /** @description Description of the object. Format: ^.{0,999}$ */
             description?: string;
             /** @description hostname or ip address */
             host: string;
@@ -15375,9 +18236,9 @@ export interface components {
         IdentityObject: {
             /** @description UUID of the object, system automatically allocates one if not provided. Format: ^[a-zA-Z0-9\-_:+/=]{0,256}$ */
             readonly uuid: string;
-            /** @description Name of the user. Format: ^[a-zA-Z0-9][a-zA-Z0-9_ .:\\/\\-]{0,128}$ */
+            /** @description Name of the user. Format: ^[a-zA-Z0-9_.@/\\\s-]{1,129}$ */
             name: string;
-            /** @description Description of the object. Format: ^.{0,255}$ */
+            /** @description Description of the object. Format: ^.{0,999}$ */
             description?: string;
             /** @description Identity Object type. Allowed values: [USER, GROUP] */
             identity_type: string;
@@ -15412,9 +18273,9 @@ export interface components {
          *     }
          */
         IdentityObjectInput: {
-            /** @description Name of the user. Format: ^[a-zA-Z0-9][a-zA-Z0-9_ .:\\/\\-]{0,128}$ */
+            /** @description Name of the user. Format: ^[a-zA-Z0-9_.@/\\\s-]{1,129}$ */
             name: string;
-            /** @description Description of the object. Format: ^.{0,255}$ */
+            /** @description Description of the object. Format: ^.{0,999}$ */
             description?: string;
             /** @description Identity Object type. Allowed values: [USER, GROUP] */
             identity_type: string;
@@ -15456,7 +18317,7 @@ export interface components {
             readonly uuid: string;
             /** @description Name of the object */
             name?: string;
-            /** @description Description of the object. Format: ^.{0,255}$ */
+            /** @description Description of the object. Format: ^.{0,999}$ */
             description?: string;
             /** @description IPS Context ID */
             import_id: string;
@@ -15500,7 +18361,7 @@ export interface components {
             readonly uuid: string;
             /** @description Name of the object, defaults to 'default-<resource-type>' */
             name: string;
-            /** @description Description of the object. Format: ^.{0,255}$ */
+            /** @description Description of the object. Format: ^.{0,999}$ */
             description?: string;
             import_id?: string;
             line?: string;
@@ -15640,7 +18501,7 @@ export interface components {
             readonly uuid: string;
             /** @description Name of the object */
             name?: string;
-            /** @description Description of the object. Format: ^.{0,255}$ */
+            /** @description Description of the object. Format: ^.{0,999}$ */
             description?: string;
             version_no?: string;
             import_id?: string;
@@ -16879,7 +19740,7 @@ export interface components {
         SSLProxyProfileInput: {
             /** @description Name of the object */
             name?: string;
-            /** @description Description of the object. Format: ^.{0,255}$ */
+            /** @description Description of the object. Format: ^.{0,999}$ */
             description?: string;
             /**
              * @description SSL proxy profile type. Allowed values: [REVERSE, FORWARD]
@@ -17113,7 +19974,7 @@ export interface components {
             readonly uuid: string;
             /** @description Name of the scheduler object. Format: ^[a-zA-Z0-9][a-zA-Z0-9-_.:/\\\\s]{0,62}$ */
             name: string;
-            /** @description Description of the scheduler object. Format: ^[a-zA-Z0-9][a-zA-Z0-9-._!"'#%,:;=@{}~\$\(\)\*\+\/\\\?\[\]\^\|\s*][^&<>]{0,899}$ */
+            /** @description Description of the scheduler object. Format: ^[^<>&\n]{0,900}$ */
             description?: string;
             /** @description Start date/time of the first scheduling window, specified as epoch time in milliseconds (e.g., 1773046187000). Represents the timestamp from which the scheduler becomes active. */
             "start-date1"?: string;
@@ -17155,7 +20016,7 @@ export interface components {
         SchedulerInput: {
             /** @description Name of the scheduler object. Format: ^[a-zA-Z0-9][a-zA-Z0-9-_.:/\\\\s]{0,62}$ */
             name: string;
-            /** @description Description of the scheduler object. Format: ^[a-zA-Z0-9][a-zA-Z0-9-._!"'#%,:;=@{}~\$\(\)\*\+\/\\\?\[\]\^\|\s*][^&<>]{0,899}$ */
+            /** @description Description of the scheduler object. Format: ^[^<>&\n]{0,900}$ */
             description?: string;
             /** @description Start date/time of the first scheduling window, specified as epoch time in milliseconds (e.g., 1773046187000). Represents the timestamp from which the scheduler becomes active. */
             "start-date1"?: string;
@@ -17219,7 +20080,7 @@ export interface components {
             readonly uuid: string;
             /** @description Name of the secintel profile group object. Format: ^[a-zA-Z0-9_][a-zA-Z0-9-_.:/\\s]{0,62}$ */
             name: string;
-            /** @description description of the profile group. Format: ^[a-zA-Z0-9][a-zA-Z0-9-._!"'#%,:;=@{}~\$\(\)\*\+\/\\\?\[\]\^\|\s*][^&<>]{0,899}$ */
+            /** @description description of the profile group. Format: ^[^<>&\n]{0,900}$ */
             description?: string;
             /** @description profile id of the CC type secintel profile */
             cc_secintel_profile_id?: components["schemas"]["SecintelProfileGroupCCSecintelProfileIDRef"][];
@@ -17284,7 +20145,7 @@ export interface components {
         SecintelProfileGroupInput: {
             /** @description Name of the secintel profile group object. Format: ^[a-zA-Z0-9_][a-zA-Z0-9-_.:/\\s]{0,62}$ */
             name: string;
-            /** @description description of the profile group. Format: ^[a-zA-Z0-9][a-zA-Z0-9-._!"'#%,:;=@{}~\$\(\)\*\+\/\\\?\[\]\^\|\s*][^&<>]{0,899}$ */
+            /** @description description of the profile group. Format: ^[^<>&\n]{0,900}$ */
             description?: string;
             /** @description profile id of the CC type secintel profile */
             cc_secintel_profile_id?: components["schemas"]["SecintelProfileGroupCCSecintelProfileIDRef"][];
@@ -17353,7 +20214,7 @@ export interface components {
         SecintelProfileInput: {
             /** @description Name of the secintel profile object. Format: ^[a-zA-Z0-9_][a-zA-Z0-9-_.:/\\s]{0,62}$ */
             name: string;
-            /** @description Description of the object. Format: ^.{0,255}$ */
+            /** @description Description of the object. Format: ^.{0,999}$ */
             description?: string;
             /** @description Allowed values: [CC, DNS, Infected-Hosts] */
             feed_category?: string;
@@ -17414,7 +20275,7 @@ export interface components {
             readonly uuid: string;
             /** @description Name of the services object. Format: ^[a-zA-Z0-9][a-zA-Z0-9-_]{0,63}$ */
             name: string;
-            /** @description Description of the services object. Format: ^[a-zA-Z0-9][a-zA-Z0-9-._!"'#%,:;=@{}~\$\(\)\*\+\/\\\?\[\]\^\|\s*][^&<>]{0,899}$ */
+            /** @description Description of the services object. Format: ^[^<>&\n]{0,900}$ */
             description?: string;
             /** @description Block Message. Applicable only when service_type is SERVICE (not GROUP). */
             block_message?: string;
@@ -17462,7 +20323,7 @@ export interface components {
         ServicesInput: {
             /** @description Name of the services object. Format: ^[a-zA-Z0-9][a-zA-Z0-9-_]{0,63}$ */
             name: string;
-            /** @description Description of the services object. Format: ^[a-zA-Z0-9][a-zA-Z0-9-._!"'#%,:;=@{}~\$\(\)\*\+\/\\\?\[\]\^\|\s*][^&<>]{0,899}$ */
+            /** @description Description of the services object. Format: ^[^<>&\n]{0,900}$ */
             description?: string;
             /** @description Block Message. Applicable only when service_type is SERVICE (not GROUP). */
             block_message?: string;
@@ -17604,7 +20465,7 @@ export interface components {
         URLCategoryList: {
             /** @description UUID of the object, system automatically allocates one if not provided. Format: ^[a-zA-Z0-9\-_:+/=]{0,256}$ */
             readonly uuid: string;
-            /** @description Name of the object. Format: ^[a-zA-Z0-9:._-]{1,59}$ */
+            /** @description Name of the object. Format: ^[a-zA-Z_][a-zA-Z_0-9-]{0,58}$ */
             name: string;
             /** @description Description of the scheduler object */
             description?: string;
@@ -17625,7 +20486,7 @@ export interface components {
          *     }
          */
         URLCategoryListInput: {
-            /** @description Name of the object. Format: ^[a-zA-Z0-9:._-]{1,59}$ */
+            /** @description Name of the object. Format: ^[a-zA-Z_][a-zA-Z_0-9-]{0,58}$ */
             name: string;
             /** @description Description of the scheduler object */
             description?: string;
@@ -17659,7 +20520,7 @@ export interface components {
             readonly uuid: string;
             /** @description Name of the url-patterns object. Format: ^[a-zA-Z0-9][a-zA-Z0-9-_.:/\\s]{0,28}$ */
             name: string;
-            /** @description Description of the object. Format: ^[a-zA-Z0-9][a-zA-Z0-9-._!#%,:;=@{}~\$\(\)\*\+\/\\\?\[\]\^\|\s*]{0,255}$ */
+            /** @description Description of the object. Format: ^[^<>&\n]{0,255}$ */
             description?: string;
             /** @description List of Address patterns. Each entry must be a valid IP address, URL or URL pattern supported by device.. Min length: 1 */
             address_patterns: string[];
@@ -17678,7 +20539,7 @@ export interface components {
         URLPatternsInput: {
             /** @description Name of the url-patterns object. Format: ^[a-zA-Z0-9][a-zA-Z0-9-_.:/\\s]{0,28}$ */
             name: string;
-            /** @description Description of the object. Format: ^[a-zA-Z0-9][a-zA-Z0-9-._!#%,:;=@{}~\$\(\)\*\+\/\\\?\[\]\^\|\s*]{0,255}$ */
+            /** @description Description of the object. Format: ^[^<>&\n]{0,255}$ */
             description?: string;
             /** @description List of Address patterns. Each entry must be a valid IP address, URL or URL pattern supported by device.. Min length: 1 */
             address_patterns: string[];
@@ -17838,7 +20699,7 @@ export interface components {
         WebFilteringProfileInput: {
             /** @description Name of the web-filtering-profile object. Format: ^[a-zA-Z0-9][a-zA-Z0-9-_@!#$%^*-+,.:/\\s]{0,28}$ */
             name: string;
-            /** @description Description of the object. Format: ^.{0,255}$ */
+            /** @description Description of the object. Format: ^.{0,999}$ */
             description?: string;
             /** @description Web filtering profile type. Allowed values: [WEBSENSE, LOCAL, JUNIPER_ENHANCED, NG_JUNIPER] */
             profile_type: string;
@@ -18469,7 +21330,7 @@ export interface components {
              * @default false
              */
             all_site_policy: boolean;
-            /** @description Policy description. */
+            /** @description Policy description. Maximum 255 characters. Must not contain &, <, or >. */
             description?: string;
             /**
              * Format: int64
@@ -18675,6 +21536,12 @@ export interface components {
          *             "name": "string"
          *           }
          *         ],
+         *         "gbp_tags": [
+         *           {
+         *             "uuid": "string",
+         *             "name": "string"
+         *           }
+         *         ],
          *         "address_excluded": true
          *       },
          *       "destinations": {
@@ -18692,6 +21559,12 @@ export interface components {
          *           }
          *         ],
          *         "url_category_lists": [
+         *           {
+         *             "uuid": "string",
+         *             "name": "string"
+         *           }
+         *         ],
+         *         "gbp_tags": [
          *           {
          *             "uuid": "string",
          *             "name": "string"
@@ -18878,6 +21751,12 @@ export interface components {
          *             "name": "string"
          *           }
          *         ],
+         *         "gbp_tags": [
+         *           {
+         *             "uuid": "string",
+         *             "name": "string"
+         *           }
+         *         ],
          *         "address_excluded": true
          *       },
          *       "destinations": {
@@ -18895,6 +21774,12 @@ export interface components {
          *           }
          *         ],
          *         "url_category_lists": [
+         *           {
+         *             "uuid": "string",
+         *             "name": "string"
+         *           }
+         *         ],
+         *         "gbp_tags": [
          *           {
          *             "uuid": "string",
          *             "name": "string"
@@ -19134,6 +22019,20 @@ export interface components {
             session_close_log: boolean;
         };
         /**
+         * GbpTagReference
+         * @description GbpTagReference identifies a GBP tag endpoint.
+         * @example {
+         *       "uuid": "string",
+         *       "name": "string"
+         *     }
+         */
+        GbpTagReference: {
+            /** @description GBP tag object UUID. */
+            uuid?: string;
+            /** @description GBP tag object name. Populated by the server on read responses. */
+            readonly name?: string;
+        };
+        /**
          * GetFirewallPolicyRuleGroupOutput
          * @example {
          *       "items": [
@@ -19187,6 +22086,12 @@ export interface components {
          *                 "name": "string"
          *               }
          *             ],
+         *             "gbp_tags": [
+         *               {
+         *                 "uuid": "string",
+         *                 "name": "string"
+         *               }
+         *             ],
          *             "address_excluded": true
          *           },
          *           "destinations": {
@@ -19204,6 +22109,12 @@ export interface components {
          *               }
          *             ],
          *             "url_category_lists": [
+         *               {
+         *                 "uuid": "string",
+         *                 "name": "string"
+         *               }
+         *             ],
+         *             "gbp_tags": [
          *               {
          *                 "uuid": "string",
          *                 "name": "string"
@@ -19832,6 +22743,12 @@ export interface components {
          *           "name": "string"
          *         }
          *       ],
+         *       "gbp_tags": [
+         *         {
+         *           "uuid": "string",
+         *           "name": "string"
+         *         }
+         *       ],
          *       "address_excluded": true
          *     }
          */
@@ -19842,6 +22759,8 @@ export interface components {
             addresses: components["schemas"]["AddressReference"][];
             /** @description Destination URL category list endpoints. */
             url_category_lists?: components["schemas"]["UrlCategoryListReference"][];
+            /** @description Destination GBP tag endpoints. */
+            gbp_tags?: components["schemas"]["GbpTagReference"][];
             /**
              * @description When true, the destination addresses are excluded (negated).
              * @default false
@@ -19871,6 +22790,12 @@ export interface components {
          *           "name": "string"
          *         }
          *       ],
+         *       "gbp_tags": [
+         *         {
+         *           "uuid": "string",
+         *           "name": "string"
+         *         }
+         *       ],
          *       "address_excluded": true
          *     }
          */
@@ -19881,6 +22806,8 @@ export interface components {
             addresses: components["schemas"]["AddressReference"][];
             /** @description Source identity (user) endpoints. */
             identities?: components["schemas"]["IdentityReference"][];
+            /** @description Source GBP tag endpoints. */
+            gbp_tags?: components["schemas"]["GbpTagReference"][];
             /**
              * @description When true, the source addresses are excluded (negated).
              * @default false
@@ -20211,7 +23138,7 @@ export interface components {
              * @default false
              */
             all_site_policy: boolean;
-            /** @description Policy description. */
+            /** @description Policy description. Maximum 255 characters. Must not contain &, <, or >. */
             description?: string;
             /**
              * Format: int64
@@ -20253,6 +23180,8 @@ export interface components {
             addresses: components["schemas"]["AddressReference"][];
             /** @description Destination URL category list endpoints. */
             url_category_lists?: components["schemas"]["UrlCategoryListReference"][];
+            /** @description Destination GBP tag endpoints. */
+            gbp_tags?: components["schemas"]["GbpTagReference"][];
             /**
              * @description When true, the destination addresses are excluded (negated).
              * @default false
@@ -20278,6 +23207,8 @@ export interface components {
             addresses: components["schemas"]["AddressReference"][];
             /** @description Destination URL category list endpoints. */
             url_category_lists?: components["schemas"]["UrlCategoryListReference"][];
+            /** @description Destination GBP tag endpoints. */
+            gbp_tags?: components["schemas"]["GbpTagReference"][];
             /**
              * @description When true, the destination addresses are excluded (negated).
              * @default false
@@ -20300,6 +23231,8 @@ export interface components {
             addresses: components["schemas"]["AddressReference"][];
             /** @description Source identity (user) endpoints. */
             identities?: components["schemas"]["IdentityReference"][];
+            /** @description Source GBP tag endpoints. */
+            gbp_tags?: components["schemas"]["GbpTagReference"][];
             /**
              * @description When true, the source addresses are excluded (negated).
              * @default false
@@ -20322,6 +23255,8 @@ export interface components {
             addresses: components["schemas"]["AddressReference"][];
             /** @description Source identity (user) endpoints. */
             identities?: components["schemas"]["IdentityReference"][];
+            /** @description Source GBP tag endpoints. */
+            gbp_tags?: components["schemas"]["GbpTagReference"][];
             /**
              * @description When true, the source addresses are excluded (negated).
              * @default false
@@ -20859,13 +23794,12 @@ export interface components {
         /**
          * InstallCaCertificateInput
          * @description For multipart/form-data uploads, use form field 'ca_certificate' for the CA certificate file
-         * @example {
-         *       "ca_certificate": "string",
-         *       "ca_profile_id": "string"
-         *     }
          */
         InstallCaCertificateInput: {
-            /** @description CA certificate file to be installed on the device. For REST API: upload as multipart/form-data in 'ca_certificate' form field. */
+            /**
+             * Format: byte
+             * @description CA certificate file to be installed on the device. For REST API: upload as multipart/form-data in 'ca_certificate' form field.
+             */
             ca_certificate: string;
             /** @description Unique identifier of the CA profile to associate with the installed certificate. */
             ca_profile_id: string;
@@ -20884,15 +23818,17 @@ export interface components {
         /**
          * InstallLicenseInput
          * @description For multipart/form-data uploads, use form field 'license_file' for the license text file
-         * @example {
-         *       "license_file": "string",
-         *       "secondary_license_file": "string"
-         *     }
          */
         InstallLicenseInput: {
-            /** @description Txt file containing License information for standalone device. For REST API: upload as multipart/form-data in 'license_file' form field. */
+            /**
+             * Format: byte
+             * @description Txt file containing License information for standalone device. For REST API: upload as multipart/form-data in 'license_file' form field.
+             */
             license_file?: string;
-            /** @description Txt file containing License information for secondary device in cluster. For REST API: upload as multipart/form-data in 'secondary_license_file' form field. */
+            /**
+             * Format: byte
+             * @description Txt file containing License information for secondary device in cluster. For REST API: upload as multipart/form-data in 'secondary_license_file' form field.
+             */
             secondary_license_file?: string;
         };
         /**
@@ -20909,19 +23845,19 @@ export interface components {
         /**
          * InstallLocalCertificateInput
          * @description For multipart/form-data uploads, use form field 'local_certificate' for the certificate file and 'local_certificate_key_file' for the key file
-         * @example {
-         *       "certificate_id": "string",
-         *       "local_certificate": "string",
-         *       "local_certificate_key_file": "string",
-         *       "pass_phrase": "string"
-         *     }
          */
         InstallLocalCertificateInput: {
             /** @description Unique identifier of the certificate to associate with the installed local certificate. */
             certificate_id: string;
-            /** @description Local certificate file to be installed on the device. For REST API: upload as multipart/form-data in 'local_certificate' form field. */
+            /**
+             * Format: byte
+             * @description Local certificate file to be installed on the device. For REST API: upload as multipart/form-data in 'local_certificate' form field.
+             */
             local_certificate: string;
-            /** @description Private key file corresponding to the local certificate. For REST API: upload as multipart/form-data in 'local_certificate_key_file' form field. */
+            /**
+             * Format: byte
+             * @description Private key file corresponding to the local certificate. For REST API: upload as multipart/form-data in 'local_certificate_key_file' form field.
+             */
             local_certificate_key_file: string;
             /** @description Pass phrase used to encrypt/decrypt the private key file. */
             pass_phrase?: string;
@@ -21299,14 +24235,6 @@ export interface components {
         /**
          * UploadImageRequest
          * @description For multipart/form-data uploads, fields must be provided in the following order: sha1_hash, supported_platforms, description, image_file.
-         * @example {
-         *       "sha1_hash": "string",
-         *       "supported_platforms": [
-         *         "VSRX"
-         *       ],
-         *       "description": "string",
-         *       "image_file": "string"
-         *     }
          */
         UploadImageRequest: {
             /** @description SHA1 hash of the image file for integrity verification */
@@ -21315,7 +24243,10 @@ export interface components {
             supported_platforms: components["schemas"]["SupportedPlatform"][];
             /** @description Description of the software image */
             description: string;
-            /** @description Image binary file (.tgz, .gz, .img, .iso). Upload the file as multipart/form-data in the 'image_file' form field (e.g., junos-vsrx3-x86-64-24.2R1.17.tgz'). */
+            /**
+             * Format: byte
+             * @description Image binary file (.tgz, .gz, .img, .iso). Upload the file as multipart/form-data in the 'image_file' form field (e.g., junos-vsrx3-x86-64-24.2R1.17.tgz').
+             */
             image_file: string;
         };
         /**
@@ -23204,6 +26135,16 @@ export interface components {
          */
         TargetResponseTargetTypeResponse: "DEVICE";
         /**
+         * TargetTargetType
+         * @description TargetType identifies whether the target is an individual device or a device group.
+         *     Nested to avoid a global proto-registry symbol clash on api.DEVICE.
+         *
+         *      - DEVICE: Individual device.
+         * @example DEVICE
+         * @enum {string}
+         */
+        TargetTargetType: "DEVICE";
+        /**
          * AssociateSubscriptionInput
          * @description Body payload for associating a subscription to devices
          * @example {
@@ -23351,6 +26292,7 @@ export interface components {
             id: string;
             /**
              * @description TargetType identifies whether the target is an individual device or a device group.
+             *     Nested to avoid a global proto-registry symbol clash on api.DEVICE.
              *
              *      - DEVICE: Individual device.
              * @enum {string}
@@ -23371,15 +26313,6 @@ export interface components {
             /** @enum {string} */
             type: "DEVICE";
         };
-        /**
-         * TargetType1
-         * @description TargetType identifies whether the target is an individual device or a device group.
-         *
-         *      - DEVICE: Individual device.
-         * @example DEVICE
-         * @enum {string}
-         */
-        TargetType1: "DEVICE";
         /** ApiV1SubscriptionsAssociationsCreateRequest */
         ApiV1SubscriptionsAssociationsCreateRequest: {
             /** @description List of targets (devices) to associate the subscription with. Note: MNHA cluster UUIDs are not supported. */
@@ -32803,7 +35736,12 @@ export interface operations {
                      * @example {
                      *       "items": [
                      *         {
-                     *           "name": "string"
+                     *           "name": "string",
+                     *           "interfaces": [
+                     *             {
+                     *               "name": "string"
+                     *             }
+                     *           ]
                      *         }
                      *       ],
                      *       "count": 1
@@ -35682,6 +38620,154 @@ export interface operations {
             };
         };
     };
+    GetClusterInterfaceStatusInformation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID of the device to retrieve cluster interface status for */
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "fabric_link_details": {
+                     *         "status": "string",
+                     *         "interfaces": [
+                     *           {
+                     *             "interface_name": "string",
+                     *             "physical_status": "string",
+                     *             "monitored_status": "string"
+                     *           }
+                     *         ]
+                     *       },
+                     *       "control_link_details": {
+                     *         "status": "string",
+                     *         "interfaces": [
+                     *           {
+                     *             "interface_name": "string",
+                     *             "status": "string"
+                     *           }
+                     *         ]
+                     *       },
+                     *       "cluster_status": {
+                     *         "cluster_id": "string",
+                     *         "redundancy_groups": [
+                     *           {
+                     *             "group_id": "string",
+                     *             "failover_count": 1,
+                     *             "nodes": [
+                     *               {
+                     *                 "node_name": "string",
+                     *                 "priority": "string",
+                     *                 "status": "string",
+                     *                 "preempt": "string",
+                     *                 "manual_failover": "string",
+                     *                 "monitor_failures": "string"
+                     *               }
+                     *             ]
+                     *           }
+                     *         ]
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["l2clusterClusterInterfaceStatusInformationResponse"] & unknown;
+                };
+            };
+            /** @description Invalid request parameters. The request could not be understood or was missing required parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Authentication required. The request requires valid user authentication credentials. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Forbidden. The client does not have access rights to the content. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Resource not found. The requested resource could not be found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Conflict. The request could not be completed due to a conflict with the current state of the resource. This may occur when an object with the same name already exists in the system. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Resource exhausted. The request was rejected because a resource limit has been reached. This may occur due to rate limiting (too many requests in a given time period) or because the response payload size exceeds the maximum allowed threshold. Consider reducing the scope of the request, applying filters, or using pagination to retrieve smaller result sets. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Internal processing error. An unexpected error occurred on the server. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description An unexpected error response. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": 1,
+                     *       "message": "string",
+                     *       "details": [
+                     *         {
+                     *           "@type": "string"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["googlerpcStatus"] & unknown;
+                };
+            };
+        };
+    };
     GetReactivationStatus: {
         parameters: {
             query?: never;
@@ -35939,33 +39025,6 @@ export interface operations {
          */
         requestBody: {
             content: {
-                /**
-                 * @example {
-                 *       "ca_certificates": [
-                 *         {
-                 *           "id": "string",
-                 *           "certificate_contents": "string",
-                 *           "ignore": true
-                 *         }
-                 *       ],
-                 *       "local_certificates": [
-                 *         {
-                 *           "id": "string",
-                 *           "certificate_contents": "string",
-                 *           "key_contents": "string",
-                 *           "passphrase": "string",
-                 *           "ignore": true
-                 *         }
-                 *       ],
-                 *       "license": {
-                 *         "license_contents": "string",
-                 *         "ignore": true
-                 *       },
-                 *       "default_ca": {
-                 *         "ignore": true
-                 *       }
-                 *     }
-                 */
                 "application/json": components["schemas"]["ApiV1DevicesRmaReactivateRequest"] & unknown;
             };
         };
@@ -36338,6 +39397,1284 @@ export interface operations {
                      *     }
                      */
                     "application/json": components["schemas"]["GetRMADeviceStatusResponse"] & unknown;
+                };
+            };
+            /** @description Invalid request parameters. The request could not be understood or was missing required parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Authentication required. The request requires valid user authentication credentials. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Forbidden. The client does not have access rights to the content. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Resource not found. The requested resource could not be found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Conflict. The request could not be completed due to a conflict with the current state of the resource. This may occur when an object with the same name already exists in the system. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Resource exhausted. The request was rejected because a resource limit has been reached. This may occur due to rate limiting (too many requests in a given time period) or because the response payload size exceeds the maximum allowed threshold. Consider reducing the scope of the request, applying filters, or using pagination to retrieve smaller result sets. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Internal processing error. An unexpected error occurred on the server. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description An unexpected error response. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": 1,
+                     *       "message": "string",
+                     *       "details": [
+                     *         {
+                     *           "@type": "string"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["googlerpcStatus"] & unknown;
+                };
+            };
+        };
+    };
+    CreateL2ClusterDeployment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "l2_cluster_setup_config": {
+                 *         "primary_device_id": "string",
+                 *         "secondary_device_id": "string",
+                 *         "node0_hostname": "string",
+                 *         "node1_hostname": "string",
+                 *         "node0_management_interface": "string",
+                 *         "node1_management_interface": "string",
+                 *         "node0_management_ipv4": "string",
+                 *         "node1_management_ipv4": "string",
+                 *         "node0_management_ipv6": "string",
+                 *         "node1_management_ipv6": "string",
+                 *         "node0_backup_router_ipv4": "string",
+                 *         "node1_backup_router_ipv4": "string",
+                 *         "node0_backup_router_ipv6": "string",
+                 *         "node1_backup_router_ipv6": "string",
+                 *         "node0_backup_router_ipv4_destinations": [
+                 *           "string"
+                 *         ],
+                 *         "node1_backup_router_ipv4_destinations": [
+                 *           "string"
+                 *         ],
+                 *         "node0_backup_router_ipv6_destinations": [
+                 *           "string"
+                 *         ],
+                 *         "node1_backup_router_ipv6_destinations": [
+                 *           "string"
+                 *         ],
+                 *         "node0_link1_fpc": "string",
+                 *         "node0_link1_port": "string",
+                 *         "node0_link2_fpc": "string",
+                 *         "node0_link2_port": "string",
+                 *         "node1_link1_fpc": "string",
+                 *         "node1_link1_port": "string",
+                 *         "node1_link2_fpc": "string",
+                 *         "node1_link2_port": "string",
+                 *         "fab0_link1_interface": "string",
+                 *         "fab0_link2_interface": "string",
+                 *         "redundancy_groups": [
+                 *           {
+                 *             "rg_no": "string",
+                 *             "node0_priority": "string",
+                 *             "node1_priority": "string"
+                 *           }
+                 *         ],
+                 *         "reth_interfaces": [
+                 *           {
+                 *             "reth_no": "string",
+                 *             "node0_interfaces": [
+                 *               "string"
+                 *             ],
+                 *             "vlan_tagging": true,
+                 *             "redundancy_group": "string",
+                 *             "logical_interfaces": [
+                 *               {
+                 *                 "unit": "string",
+                 *                 "vlan_id": "string",
+                 *                 "ipv4_addresses": [
+                 *                   "string"
+                 *                 ],
+                 *                 "ipv6_addresses": [
+                 *                   "string"
+                 *                 ]
+                 *               }
+                 *             ]
+                 *           }
+                 *         ],
+                 *         "zones": [
+                 *           {
+                 *             "name": "string",
+                 *             "protocols": [
+                 *               "string"
+                 *             ],
+                 *             "services": [
+                 *               "string"
+                 *             ],
+                 *             "interfaces": [
+                 *               {
+                 *                 "name": "string",
+                 *                 "protocols": [
+                 *                   "string"
+                 *                 ],
+                 *                 "services": [
+                 *                   "string"
+                 *                 ]
+                 *               }
+                 *             ]
+                 *           }
+                 *         ]
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["CreateL2ClusterDeploymentRequest"] & unknown;
+            };
+        };
+        responses: {
+            /** @description A successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "l2_cluster_deployment_id": "string"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["CreateL2ClusterDeploymentResponse"] & unknown;
+                };
+            };
+            /** @description Invalid request parameters. The request could not be understood or was missing required parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Authentication required. The request requires valid user authentication credentials. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Forbidden. The client does not have access rights to the content. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Resource not found. The requested resource could not be found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Conflict. The request could not be completed due to a conflict with the current state of the resource. This may occur when an object with the same name already exists in the system. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Resource exhausted. The request was rejected because a resource limit has been reached. This may occur due to rate limiting (too many requests in a given time period) or because the response payload size exceeds the maximum allowed threshold. Consider reducing the scope of the request, applying filters, or using pagination to retrieve smaller result sets. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Internal processing error. An unexpected error occurred on the server. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description An unexpected error response. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": 1,
+                     *       "message": "string",
+                     *       "details": [
+                     *         {
+                     *           "@type": "string"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["googlerpcStatus"] & unknown;
+                };
+            };
+        };
+    };
+    ValidateL2ClusterDeployment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "l2_cluster_setup_config": {
+                 *         "primary_device_id": "string",
+                 *         "secondary_device_id": "string",
+                 *         "node0_hostname": "string",
+                 *         "node1_hostname": "string",
+                 *         "node0_management_interface": "string",
+                 *         "node1_management_interface": "string",
+                 *         "node0_management_ipv4": "string",
+                 *         "node1_management_ipv4": "string",
+                 *         "node0_management_ipv6": "string",
+                 *         "node1_management_ipv6": "string",
+                 *         "node0_backup_router_ipv4": "string",
+                 *         "node1_backup_router_ipv4": "string",
+                 *         "node0_backup_router_ipv6": "string",
+                 *         "node1_backup_router_ipv6": "string",
+                 *         "node0_backup_router_ipv4_destinations": [
+                 *           "string"
+                 *         ],
+                 *         "node1_backup_router_ipv4_destinations": [
+                 *           "string"
+                 *         ],
+                 *         "node0_backup_router_ipv6_destinations": [
+                 *           "string"
+                 *         ],
+                 *         "node1_backup_router_ipv6_destinations": [
+                 *           "string"
+                 *         ],
+                 *         "node0_link1_fpc": "string",
+                 *         "node0_link1_port": "string",
+                 *         "node0_link2_fpc": "string",
+                 *         "node0_link2_port": "string",
+                 *         "node1_link1_fpc": "string",
+                 *         "node1_link1_port": "string",
+                 *         "node1_link2_fpc": "string",
+                 *         "node1_link2_port": "string",
+                 *         "fab0_link1_interface": "string",
+                 *         "fab0_link2_interface": "string",
+                 *         "redundancy_groups": [
+                 *           {
+                 *             "rg_no": "string",
+                 *             "node0_priority": "string",
+                 *             "node1_priority": "string"
+                 *           }
+                 *         ],
+                 *         "reth_interfaces": [
+                 *           {
+                 *             "reth_no": "string",
+                 *             "node0_interfaces": [
+                 *               "string"
+                 *             ],
+                 *             "vlan_tagging": true,
+                 *             "redundancy_group": "string",
+                 *             "logical_interfaces": [
+                 *               {
+                 *                 "unit": "string",
+                 *                 "vlan_id": "string",
+                 *                 "ipv4_addresses": [
+                 *                   "string"
+                 *                 ],
+                 *                 "ipv6_addresses": [
+                 *                   "string"
+                 *                 ]
+                 *               }
+                 *             ]
+                 *           }
+                 *         ],
+                 *         "zones": [
+                 *           {
+                 *             "name": "string",
+                 *             "protocols": [
+                 *               "string"
+                 *             ],
+                 *             "services": [
+                 *               "string"
+                 *             ],
+                 *             "interfaces": [
+                 *               {
+                 *                 "name": "string",
+                 *                 "protocols": [
+                 *                   "string"
+                 *                 ],
+                 *                 "services": [
+                 *                   "string"
+                 *                 ]
+                 *               }
+                 *             ]
+                 *           }
+                 *         ]
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["ValidateL2ClusterDeploymentRequest"] & unknown;
+            };
+        };
+        responses: {
+            /** @description A successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "valid": true,
+                     *       "conflicts": [
+                     *         {
+                     *           "device_id": "string",
+                     *           "node": "string",
+                     *           "interface": "string",
+                     *           "category": "string",
+                     *           "reason": "string",
+                     *           "cli_lines": [
+                     *             "string"
+                     *           ]
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidateL2ClusterDeploymentResponse"] & unknown;
+                };
+            };
+            /** @description Invalid request parameters. The request could not be understood or was missing required parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Authentication required. The request requires valid user authentication credentials. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Forbidden. The client does not have access rights to the content. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Resource not found. The requested resource could not be found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Conflict. The request could not be completed due to a conflict with the current state of the resource. This may occur when an object with the same name already exists in the system. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Resource exhausted. The request was rejected because a resource limit has been reached. This may occur due to rate limiting (too many requests in a given time period) or because the response payload size exceeds the maximum allowed threshold. Consider reducing the scope of the request, applying filters, or using pagination to retrieve smaller result sets. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Internal processing error. An unexpected error occurred on the server. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description An unexpected error response. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": 1,
+                     *       "message": "string",
+                     *       "details": [
+                     *         {
+                     *           "@type": "string"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["googlerpcStatus"] & unknown;
+                };
+            };
+        };
+    };
+    GetL2ClusterDeployment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Unique identifier of the L2 cluster deployment to retrieve */
+                l2_cluster_deployment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "l2_cluster_deployment_id": "string",
+                     *       "l2_cluster_setup_config": {
+                     *         "primary_device_id": "string",
+                     *         "secondary_device_id": "string",
+                     *         "node0_hostname": "string",
+                     *         "node1_hostname": "string",
+                     *         "node0_management_interface": "string",
+                     *         "node1_management_interface": "string",
+                     *         "node0_management_ipv4": "string",
+                     *         "node1_management_ipv4": "string",
+                     *         "node0_management_ipv6": "string",
+                     *         "node1_management_ipv6": "string",
+                     *         "node0_backup_router_ipv4": "string",
+                     *         "node1_backup_router_ipv4": "string",
+                     *         "node0_backup_router_ipv6": "string",
+                     *         "node1_backup_router_ipv6": "string",
+                     *         "node0_backup_router_ipv4_destinations": [
+                     *           "string"
+                     *         ],
+                     *         "node1_backup_router_ipv4_destinations": [
+                     *           "string"
+                     *         ],
+                     *         "node0_backup_router_ipv6_destinations": [
+                     *           "string"
+                     *         ],
+                     *         "node1_backup_router_ipv6_destinations": [
+                     *           "string"
+                     *         ],
+                     *         "node0_link1_fpc": "string",
+                     *         "node0_link1_port": "string",
+                     *         "node0_link2_fpc": "string",
+                     *         "node0_link2_port": "string",
+                     *         "node1_link1_fpc": "string",
+                     *         "node1_link1_port": "string",
+                     *         "node1_link2_fpc": "string",
+                     *         "node1_link2_port": "string",
+                     *         "fab0_link1_interface": "string",
+                     *         "fab0_link2_interface": "string",
+                     *         "redundancy_groups": [
+                     *           {
+                     *             "rg_no": "string",
+                     *             "node0_priority": "string",
+                     *             "node1_priority": "string"
+                     *           }
+                     *         ],
+                     *         "reth_interfaces": [
+                     *           {
+                     *             "reth_no": "string",
+                     *             "node0_interfaces": [
+                     *               "string"
+                     *             ],
+                     *             "vlan_tagging": true,
+                     *             "redundancy_group": "string",
+                     *             "logical_interfaces": [
+                     *               {
+                     *                 "unit": "string",
+                     *                 "vlan_id": "string",
+                     *                 "ipv4_addresses": [
+                     *                   "string"
+                     *                 ],
+                     *                 "ipv6_addresses": [
+                     *                   "string"
+                     *                 ]
+                     *               }
+                     *             ]
+                     *           }
+                     *         ],
+                     *         "zones": [
+                     *           {
+                     *             "name": "string",
+                     *             "protocols": [
+                     *               "string"
+                     *             ],
+                     *             "services": [
+                     *               "string"
+                     *             ],
+                     *             "interfaces": [
+                     *               {
+                     *                 "name": "string",
+                     *                 "protocols": [
+                     *                   "string"
+                     *                 ],
+                     *                 "services": [
+                     *                   "string"
+                     *                 ]
+                     *               }
+                     *             ]
+                     *           }
+                     *         ]
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["l2clusterGetL2ClusterDeploymentResponse"] & unknown;
+                };
+            };
+            /** @description Invalid request parameters. The request could not be understood or was missing required parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Authentication required. The request requires valid user authentication credentials. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Forbidden. The client does not have access rights to the content. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Resource not found. The requested resource could not be found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Conflict. The request could not be completed due to a conflict with the current state of the resource. This may occur when an object with the same name already exists in the system. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Resource exhausted. The request was rejected because a resource limit has been reached. This may occur due to rate limiting (too many requests in a given time period) or because the response payload size exceeds the maximum allowed threshold. Consider reducing the scope of the request, applying filters, or using pagination to retrieve smaller result sets. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Internal processing error. An unexpected error occurred on the server. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description An unexpected error response. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": 1,
+                     *       "message": "string",
+                     *       "details": [
+                     *         {
+                     *           "@type": "string"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["googlerpcStatus"] & unknown;
+                };
+            };
+        };
+    };
+    UpdateL2ClusterDeployment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Unique identifier of the L2 cluster deployment to update */
+                l2_cluster_deployment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "l2_cluster_setup_config": {
+                 *         "primary_device_id": "string",
+                 *         "secondary_device_id": "string",
+                 *         "node0_hostname": "string",
+                 *         "node1_hostname": "string",
+                 *         "node0_management_interface": "string",
+                 *         "node1_management_interface": "string",
+                 *         "node0_management_ipv4": "string",
+                 *         "node1_management_ipv4": "string",
+                 *         "node0_management_ipv6": "string",
+                 *         "node1_management_ipv6": "string",
+                 *         "node0_backup_router_ipv4": "string",
+                 *         "node1_backup_router_ipv4": "string",
+                 *         "node0_backup_router_ipv6": "string",
+                 *         "node1_backup_router_ipv6": "string",
+                 *         "node0_backup_router_ipv4_destinations": [
+                 *           "string"
+                 *         ],
+                 *         "node1_backup_router_ipv4_destinations": [
+                 *           "string"
+                 *         ],
+                 *         "node0_backup_router_ipv6_destinations": [
+                 *           "string"
+                 *         ],
+                 *         "node1_backup_router_ipv6_destinations": [
+                 *           "string"
+                 *         ],
+                 *         "node0_link1_fpc": "string",
+                 *         "node0_link1_port": "string",
+                 *         "node0_link2_fpc": "string",
+                 *         "node0_link2_port": "string",
+                 *         "node1_link1_fpc": "string",
+                 *         "node1_link1_port": "string",
+                 *         "node1_link2_fpc": "string",
+                 *         "node1_link2_port": "string",
+                 *         "fab0_link1_interface": "string",
+                 *         "fab0_link2_interface": "string",
+                 *         "redundancy_groups": [
+                 *           {
+                 *             "rg_no": "string",
+                 *             "node0_priority": "string",
+                 *             "node1_priority": "string"
+                 *           }
+                 *         ],
+                 *         "reth_interfaces": [
+                 *           {
+                 *             "reth_no": "string",
+                 *             "node0_interfaces": [
+                 *               "string"
+                 *             ],
+                 *             "vlan_tagging": true,
+                 *             "redundancy_group": "string",
+                 *             "logical_interfaces": [
+                 *               {
+                 *                 "unit": "string",
+                 *                 "vlan_id": "string",
+                 *                 "ipv4_addresses": [
+                 *                   "string"
+                 *                 ],
+                 *                 "ipv6_addresses": [
+                 *                   "string"
+                 *                 ]
+                 *               }
+                 *             ]
+                 *           }
+                 *         ],
+                 *         "zones": [
+                 *           {
+                 *             "name": "string",
+                 *             "protocols": [
+                 *               "string"
+                 *             ],
+                 *             "services": [
+                 *               "string"
+                 *             ],
+                 *             "interfaces": [
+                 *               {
+                 *                 "name": "string",
+                 *                 "protocols": [
+                 *                   "string"
+                 *                 ],
+                 *                 "services": [
+                 *                   "string"
+                 *                 ]
+                 *               }
+                 *             ]
+                 *           }
+                 *         ]
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["CreateL2ClusterDeploymentRequest"] & unknown;
+            };
+        };
+        responses: {
+            /** @description A successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "l2_cluster_deployment_id": "string"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["l2clusterUpdateL2ClusterDeploymentResponse"] & unknown;
+                };
+            };
+            /** @description Invalid request parameters. The request could not be understood or was missing required parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Authentication required. The request requires valid user authentication credentials. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Forbidden. The client does not have access rights to the content. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Resource not found. The requested resource could not be found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Conflict. The request could not be completed due to a conflict with the current state of the resource. This may occur when an object with the same name already exists in the system. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Resource exhausted. The request was rejected because a resource limit has been reached. This may occur due to rate limiting (too many requests in a given time period) or because the response payload size exceeds the maximum allowed threshold. Consider reducing the scope of the request, applying filters, or using pagination to retrieve smaller result sets. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Internal processing error. An unexpected error occurred on the server. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description An unexpected error response. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": 1,
+                     *       "message": "string",
+                     *       "details": [
+                     *         {
+                     *           "@type": "string"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["googlerpcStatus"] & unknown;
+                };
+            };
+        };
+    };
+    DeleteL2ClusterDeployment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Unique identifier of the L2 cluster deployment to delete */
+                l2_cluster_deployment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "l2_cluster_deployment_id": "string"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["l2clusterDeleteL2ClusterDeploymentResponse"] & unknown;
+                };
+            };
+            /** @description Invalid request parameters. The request could not be understood or was missing required parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Authentication required. The request requires valid user authentication credentials. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Forbidden. The client does not have access rights to the content. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Resource not found. The requested resource could not be found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Conflict. The request could not be completed due to a conflict with the current state of the resource. This may occur when an object with the same name already exists in the system. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Resource exhausted. The request was rejected because a resource limit has been reached. This may occur due to rate limiting (too many requests in a given time period) or because the response payload size exceeds the maximum allowed threshold. Consider reducing the scope of the request, applying filters, or using pagination to retrieve smaller result sets. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Internal processing error. An unexpected error occurred on the server. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description An unexpected error response. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": 1,
+                     *       "message": "string",
+                     *       "details": [
+                     *         {
+                     *           "@type": "string"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["googlerpcStatus"] & unknown;
+                };
+            };
+        };
+    };
+    CommitL2ClusterDeployment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Unique identifier of the L2 cluster deployment to commit to devices */
+                l2_cluster_deployment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "example": "string"
+                 *     }
+                 */
+                "text/plain": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description A successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "operation_id": "string",
+                     *       "l2_cluster_deployment_id": "string"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["CommitL2ClusterDeploymentResponse"] & unknown;
+                };
+            };
+            /** @description Invalid request parameters. The request could not be understood or was missing required parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Authentication required. The request requires valid user authentication credentials. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Forbidden. The client does not have access rights to the content. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Resource not found. The requested resource could not be found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Conflict. The request could not be completed due to a conflict with the current state of the resource. This may occur when an object with the same name already exists in the system. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Resource exhausted. The request was rejected because a resource limit has been reached. This may occur due to rate limiting (too many requests in a given time period) or because the response payload size exceeds the maximum allowed threshold. Consider reducing the scope of the request, applying filters, or using pagination to retrieve smaller result sets. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Internal processing error. An unexpected error occurred on the server. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description An unexpected error response. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": 1,
+                     *       "message": "string",
+                     *       "details": [
+                     *         {
+                     *           "@type": "string"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["googlerpcStatus"] & unknown;
+                };
+            };
+        };
+    };
+    GetL2ClusterDeploymentStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Unique identifier of the L2 cluster deployment to get status for */
+                l2_cluster_deployment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": "string",
+                     *       "message": "string",
+                     *       "cluster_id": "string"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["GetL2ClusterDeploymentStatusResponse"] & unknown;
+                };
+            };
+            /** @description Invalid request parameters. The request could not be understood or was missing required parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Authentication required. The request requires valid user authentication credentials. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Forbidden. The client does not have access rights to the content. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Resource not found. The requested resource could not be found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Conflict. The request could not be completed due to a conflict with the current state of the resource. This may occur when an object with the same name already exists in the system. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Resource exhausted. The request was rejected because a resource limit has been reached. This may occur due to rate limiting (too many requests in a given time period) or because the response payload size exceeds the maximum allowed threshold. Consider reducing the scope of the request, applying filters, or using pagination to retrieve smaller result sets. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description Internal processing error. An unexpected error occurred on the server. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["runtimeError1"];
+                };
+            };
+            /** @description An unexpected error response. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": 1,
+                     *       "message": "string",
+                     *       "details": [
+                     *         {
+                     *           "@type": "string"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["googlerpcStatus"] & unknown;
+                };
+            };
+        };
+    };
+    GetL2ClusterModelConfig: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetL2ClusterModelConfigResponse"];
                 };
             };
             /** @description Invalid request parameters. The request could not be understood or was missing required parameters. */
@@ -63580,6 +67917,12 @@ export interface operations {
                      *                 "name": "string"
                      *               }
                      *             ],
+                     *             "gbp_tags": [
+                     *               {
+                     *                 "uuid": "string",
+                     *                 "name": "string"
+                     *               }
+                     *             ],
                      *             "address_excluded": true
                      *           },
                      *           "destinations": {
@@ -63597,6 +67940,12 @@ export interface operations {
                      *               }
                      *             ],
                      *             "url_category_lists": [
+                     *               {
+                     *                 "uuid": "string",
+                     *                 "name": "string"
+                     *               }
+                     *             ],
+                     *             "gbp_tags": [
                      *               {
                      *                 "uuid": "string",
                      *                 "name": "string"
@@ -64451,6 +68800,12 @@ export interface operations {
                      *                 "name": "string"
                      *               }
                      *             ],
+                     *             "gbp_tags": [
+                     *               {
+                     *                 "uuid": "string",
+                     *                 "name": "string"
+                     *               }
+                     *             ],
                      *             "address_excluded": true
                      *           },
                      *           "destinations": {
@@ -64468,6 +68823,12 @@ export interface operations {
                      *               }
                      *             ],
                      *             "url_category_lists": [
+                     *               {
+                     *                 "uuid": "string",
+                     *                 "name": "string"
+                     *               }
+                     *             ],
+                     *             "gbp_tags": [
                      *               {
                      *                 "uuid": "string",
                      *                 "name": "string"
@@ -64682,6 +69043,11 @@ export interface operations {
                  *             "uuid": "string"
                  *           }
                  *         ],
+                 *         "gbp_tags": [
+                 *           {
+                 *             "uuid": "string"
+                 *           }
+                 *         ],
                  *         "address_excluded": true
                  *       },
                  *       "destinations": {
@@ -64698,6 +69064,11 @@ export interface operations {
                  *           }
                  *         ],
                  *         "url_category_lists": [
+                 *           {
+                 *             "uuid": "string"
+                 *           }
+                 *         ],
+                 *         "gbp_tags": [
                  *           {
                  *             "uuid": "string"
                  *           }
@@ -64806,6 +69177,12 @@ export interface operations {
                      *             "name": "string"
                      *           }
                      *         ],
+                     *         "gbp_tags": [
+                     *           {
+                     *             "uuid": "string",
+                     *             "name": "string"
+                     *           }
+                     *         ],
                      *         "address_excluded": true
                      *       },
                      *       "destinations": {
@@ -64823,6 +69200,12 @@ export interface operations {
                      *           }
                      *         ],
                      *         "url_category_lists": [
+                     *           {
+                     *             "uuid": "string",
+                     *             "name": "string"
+                     *           }
+                     *         ],
+                     *         "gbp_tags": [
                      *           {
                      *             "uuid": "string",
                      *             "name": "string"
@@ -65046,6 +69429,12 @@ export interface operations {
                      *             "name": "string"
                      *           }
                      *         ],
+                     *         "gbp_tags": [
+                     *           {
+                     *             "uuid": "string",
+                     *             "name": "string"
+                     *           }
+                     *         ],
                      *         "address_excluded": true
                      *       },
                      *       "destinations": {
@@ -65063,6 +69452,12 @@ export interface operations {
                      *           }
                      *         ],
                      *         "url_category_lists": [
+                     *           {
+                     *             "uuid": "string",
+                     *             "name": "string"
+                     *           }
+                     *         ],
+                     *         "gbp_tags": [
                      *           {
                      *             "uuid": "string",
                      *             "name": "string"
@@ -65276,6 +69671,11 @@ export interface operations {
                  *             "uuid": "string"
                  *           }
                  *         ],
+                 *         "gbp_tags": [
+                 *           {
+                 *             "uuid": "string"
+                 *           }
+                 *         ],
                  *         "address_excluded": true
                  *       },
                  *       "destinations": {
@@ -65292,6 +69692,11 @@ export interface operations {
                  *           }
                  *         ],
                  *         "url_category_lists": [
+                 *           {
+                 *             "uuid": "string"
+                 *           }
+                 *         ],
+                 *         "gbp_tags": [
                  *           {
                  *             "uuid": "string"
                  *           }
@@ -65400,6 +69805,12 @@ export interface operations {
                      *             "name": "string"
                      *           }
                      *         ],
+                     *         "gbp_tags": [
+                     *           {
+                     *             "uuid": "string",
+                     *             "name": "string"
+                     *           }
+                     *         ],
                      *         "address_excluded": true
                      *       },
                      *       "destinations": {
@@ -65417,6 +69828,12 @@ export interface operations {
                      *           }
                      *         ],
                      *         "url_category_lists": [
+                     *           {
+                     *             "uuid": "string",
+                     *             "name": "string"
+                     *           }
+                     *         ],
+                     *         "gbp_tags": [
                      *           {
                      *             "uuid": "string",
                      *             "name": "string"
@@ -65883,6 +70300,12 @@ export interface operations {
                      *                 "name": "string"
                      *               }
                      *             ],
+                     *             "gbp_tags": [
+                     *               {
+                     *                 "uuid": "string",
+                     *                 "name": "string"
+                     *               }
+                     *             ],
                      *             "address_excluded": true
                      *           },
                      *           "destinations": {
@@ -65900,6 +70323,12 @@ export interface operations {
                      *               }
                      *             ],
                      *             "url_category_lists": [
+                     *               {
+                     *                 "uuid": "string",
+                     *                 "name": "string"
+                     *               }
+                     *             ],
+                     *             "gbp_tags": [
                      *               {
                      *                 "uuid": "string",
                      *                 "name": "string"
@@ -66112,6 +70541,11 @@ export interface operations {
                  *             "uuid": "string"
                  *           }
                  *         ],
+                 *         "gbp_tags": [
+                 *           {
+                 *             "uuid": "string"
+                 *           }
+                 *         ],
                  *         "address_excluded": true
                  *       },
                  *       "destinations": {
@@ -66128,6 +70562,11 @@ export interface operations {
                  *           }
                  *         ],
                  *         "url_category_lists": [
+                 *           {
+                 *             "uuid": "string"
+                 *           }
+                 *         ],
+                 *         "gbp_tags": [
                  *           {
                  *             "uuid": "string"
                  *           }
@@ -66236,6 +70675,12 @@ export interface operations {
                      *             "name": "string"
                      *           }
                      *         ],
+                     *         "gbp_tags": [
+                     *           {
+                     *             "uuid": "string",
+                     *             "name": "string"
+                     *           }
+                     *         ],
                      *         "address_excluded": true
                      *       },
                      *       "destinations": {
@@ -66253,6 +70698,12 @@ export interface operations {
                      *           }
                      *         ],
                      *         "url_category_lists": [
+                     *           {
+                     *             "uuid": "string",
+                     *             "name": "string"
+                     *           }
+                     *         ],
+                     *         "gbp_tags": [
                      *           {
                      *             "uuid": "string",
                      *             "name": "string"
@@ -66474,6 +70925,12 @@ export interface operations {
                      *             "name": "string"
                      *           }
                      *         ],
+                     *         "gbp_tags": [
+                     *           {
+                     *             "uuid": "string",
+                     *             "name": "string"
+                     *           }
+                     *         ],
                      *         "address_excluded": true
                      *       },
                      *       "destinations": {
@@ -66491,6 +70948,12 @@ export interface operations {
                      *           }
                      *         ],
                      *         "url_category_lists": [
+                     *           {
+                     *             "uuid": "string",
+                     *             "name": "string"
+                     *           }
+                     *         ],
+                     *         "gbp_tags": [
                      *           {
                      *             "uuid": "string",
                      *             "name": "string"
@@ -66702,6 +71165,11 @@ export interface operations {
                  *             "uuid": "string"
                  *           }
                  *         ],
+                 *         "gbp_tags": [
+                 *           {
+                 *             "uuid": "string"
+                 *           }
+                 *         ],
                  *         "address_excluded": true
                  *       },
                  *       "destinations": {
@@ -66718,6 +71186,11 @@ export interface operations {
                  *           }
                  *         ],
                  *         "url_category_lists": [
+                 *           {
+                 *             "uuid": "string"
+                 *           }
+                 *         ],
+                 *         "gbp_tags": [
                  *           {
                  *             "uuid": "string"
                  *           }
@@ -66826,6 +71299,12 @@ export interface operations {
                      *             "name": "string"
                      *           }
                      *         ],
+                     *         "gbp_tags": [
+                     *           {
+                     *             "uuid": "string",
+                     *             "name": "string"
+                     *           }
+                     *         ],
                      *         "address_excluded": true
                      *       },
                      *       "destinations": {
@@ -66843,6 +71322,12 @@ export interface operations {
                      *           }
                      *         ],
                      *         "url_category_lists": [
+                     *           {
+                     *             "uuid": "string",
+                     *             "name": "string"
+                     *           }
+                     *         ],
+                     *         "gbp_tags": [
                      *           {
                      *             "uuid": "string",
                      *             "name": "string"

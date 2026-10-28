@@ -2,7 +2,7 @@
 
 An MCP (Model Context Protocol) server for HPE Juniper Security Director Cloud, built by Claude Code directly
 against the live OpenAPI spec (`spec/openapi.json`, vendored from
-[the published spec](https://www.juniper.net/documentation/us/en/software/sd-cloud/api/static/exports/security-director-cloud-apis-openapi3json.json)).
+[the published spec](https://networkingdocs.hpe.com/documentation/us/en/software/sd-cloud/api/static/exports/security-director-cloud-apis-openapi3json.json)).
 
 Covers the full API surface: **368 tools** across firewall policies, NAT policies, cross-policy deploy/preview/cleanup
 jobs, ~30 typed security-object resources (addresses, applications, services, SSL/ICAP/AV/AS/content-filtering
